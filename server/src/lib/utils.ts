@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
-// import jwt from "jsonwebtoken";
-// import z from "zod";
+import jwt from "jsonwebtoken";
+import z from "zod";
+import { User } from "../types/data.types";
 
 const ACCESS_SECRET = process.env.ACCESS_SECRET_KEY || "";
 const REFRESH_SECRET = process.env.REFRESH_SECRET_KEY || "";
@@ -25,19 +26,19 @@ export const generateReferenceNumber = () => {
   return `REF-${timestamp}-${random}`;
 };
 
-// export const generateTokens = (user: User) => {
-//   const payload = { id: user.id, role: user.role };
+export const generateTokens = (user: User) => {
+  const payload = { id: user.id, email: user.email };
 
-//   const accessToken = jwt.sign(payload, ACCESS_SECRET, {
-//     expiresIn: ACCESS_EXPIRY,
-//   });
+  const accessToken = jwt.sign(payload, ACCESS_SECRET, {
+    expiresIn: ACCESS_EXPIRY,
+  });
 
-//   const refreshToken = jwt.sign(payload, REFRESH_SECRET, {
-//     expiresIn: REFRESH_EXPIRY,
-//   });
+  const refreshToken = jwt.sign(payload, REFRESH_SECRET, {
+    expiresIn: REFRESH_EXPIRY,
+  });
 
-//   return { accessToken, refreshToken };
-// };
+  return { accessToken, refreshToken };
+};
 
 export class CustomError extends Error {
   errorCode: string | null;
