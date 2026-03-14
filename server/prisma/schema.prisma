@@ -23,7 +23,6 @@ enum AdminRole {
 
 model Admin {
   adminId      Int       @id @default(autoincrement()) @map("admin_id")
-  username     String    @unique
   email        String    @unique
   passwordHash String    @map("password_hash")
   firstName    String    @map("first_name")
