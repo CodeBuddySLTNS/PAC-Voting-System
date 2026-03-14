@@ -1,20 +1,29 @@
-import { Button } from "@/components/ui/button"
+// App.tsx
+import { RouterProvider, createBrowserRouter } from "react-router-dom"
+import { ThemeProvider } from "@/components/theme-provider"
+import LoginPage from "@/pages/auth/login"
+import SignupPage from "@/pages/auth/signup"
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <div>Home</div>, // To be replaced later
+  },
+  {
+    path: "/auth/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/auth/signup",
+    element: <SignupPage />,
+  },
+])
 
 export function App() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   )
 }
 
