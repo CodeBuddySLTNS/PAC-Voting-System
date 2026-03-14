@@ -1,15 +1,15 @@
 -- CreateTable
 CREATE TABLE `admins` (
-    `admin_id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `email` VARCHAR(191) NOT NULL,
-    `password_hash` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
     `first_name` VARCHAR(191) NOT NULL,
     `last_name` VARCHAR(191) NOT NULL,
     `role` ENUM('SUPER_ADMIN', 'ELECTION_OFFICER') NOT NULL DEFAULT 'ELECTION_OFFICER',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `admins_email_key`(`email`),
-    PRIMARY KEY (`admin_id`)
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -44,15 +44,16 @@ CREATE TABLE `classes` (
 
 -- CreateTable
 CREATE TABLE `students` (
-    `student_id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `class_id` INTEGER NOT NULL,
     `first_name` VARCHAR(191) NOT NULL,
     `middle_name` VARCHAR(191) NULL,
     `last_name` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password_hash` VARCHAR(191) NOT NULL,
+    `is_verified` BOOLEAN NOT NULL DEFAULT false,
 
-    PRIMARY KEY (`student_id`)
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -85,7 +86,7 @@ CREATE TABLE `votes` (
 ALTER TABLE `students` ADD CONSTRAINT `students_class_id_fkey` FOREIGN KEY (`class_id`) REFERENCES `classes`(`class_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `candidates` ADD CONSTRAINT `candidates_student_id_fkey` FOREIGN KEY (`student_id`) REFERENCES `students`(`student_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `candidates` ADD CONSTRAINT `candidates_student_id_fkey` FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `candidates` ADD CONSTRAINT `candidates_position_id_fkey` FOREIGN KEY (`position_id`) REFERENCES `positions`(`position_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -94,7 +95,7 @@ ALTER TABLE `candidates` ADD CONSTRAINT `candidates_position_id_fkey` FOREIGN KE
 ALTER TABLE `candidates` ADD CONSTRAINT `candidates_academic_year_id_fkey` FOREIGN KEY (`academic_year_id`) REFERENCES `academic_years`(`academic_year_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `votes` ADD CONSTRAINT `votes_student_id_fkey` FOREIGN KEY (`student_id`) REFERENCES `students`(`student_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `votes` ADD CONSTRAINT `votes_student_id_fkey` FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `votes` ADD CONSTRAINT `votes_candidate_id_fkey` FOREIGN KEY (`candidate_id`) REFERENCES `candidates`(`candidate_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
