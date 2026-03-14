@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ------------------------------------------------------
+// SYSTEM CONFIGURATION
+// ------------------------------------------------------
+
+enum AdminRole {
+  SUPER_ADMIN
+  ELECTION_OFFICER
+}
+
+model Admin {
+  adminId      Int       @id @default(autoincrement()) @map("admin_id")
+  username     String    @unique
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  firstName    String    @map("first_name")
+  lastName     String    @map("last_name")
+  role         AdminRole @default(ELECTION_OFFICER)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@map("admins")
+}
+
+model AcademicYear {
+  academicYearId Int     @id @default(autoincrement()) @map("academic_year_id")
+  name           String  @unique // e.g., "2025-2026"
+  isActive       Boolean @default(false) @map("is_active")
+
+  // Relations
+  candidates Candidate[]
+  votes      Vote[]
+
+  @@map("academic_years")
+}
+
+model Position {
+  positionId Int     @id @default(autoincrement()) @map("position_id")
+  title      String // e.g., "President", "Senator", "Representative"
+  maxVotes   Int     @map("max_votes") // e.g., 1 for Pres, 8 for Senator
+  isGlobal   Boolean @map("is_global") // True for Pres/VP/Sen, False for Reps
+
+  // Relations
+  candidates Candidate[]
+  votes      Vote[]
+
+  @@map("positions")
+}
+
+// ------------------------------------------------------
+// VOTER & CANDIDATE DATA
+// ------------------------------------------------------
+
+model Class {
+  classId   Int     @id @default(autoincrement()) @map("class_id")
+  course    String // e.g., "BSIT"
+  yearLevel Int     @map("year_level") // e.g., 1, 2, 3, 4
+  block     String? // e.g., "A", "B"
+
+  // Relations
+  students Student[]
+
+  @@map("classes")
+}
+
+model Student {
+  studentId    Int     @id @default(autoincrement()) @map("student_id")
+  classId      Int     @map("class_id")
+  firstName    String  @map("first_name")
+  middleName   String? @map("middle_name")
+  lastName     String  @map("last_name")
+  email        String
+  passwordHash String  @map("password_hash")
+
+  // Relations
+  class       Class       @relation(fields: [classId], references: [classId])
+  candidacies Candidate[]
+  votesCast   Vote[]
+
+  @@map("students")
+}
+
+model Candidate {
+  candidateId    Int     @id @default(autoincrement()) @map("candidate_id")
+  studentId      Int     @map("student_id")
+  positionId     Int     @map("position_id")
+  academicYearId Int     @map("academic_year_id")
+  partyList      String? @map("party_list")
+
+  // Relations
+  student      Student      @relation(fields: [studentId], references: [studentId])
+  position     Position     @relation(fields: [positionId], references: [positionId])
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [academicYearId])
+  votes        Vote[]
+
+  // Constraint: A student can only run once per academic year
+  @@unique([studentId, academicYearId])
+  @@map("candidates")
+}
+
+// ------------------------------------------------------
+// TRANSACTIONS
+// ------------------------------------------------------
+
+model Vote {
+  voteId         Int      @id @default(autoincrement()) @map("vote_id")
+  studentId      Int      @map("student_id")
+  candidateId    Int      @map("candidate_id")
+  positionId     Int      @map("position_id")
+  academicYearId Int      @map("academic_year_id")
+  voterClassId   Int      @map("voter_class_id") // Snapshot to protect history
+  timestamp      DateTime @default(now())
+
+  // Relations
+  student      Student      @relation(fields: [studentId], references: [studentId])
+  candidate    Candidate    @relation(fields: [candidateId], references: [candidateId])
+  position     Position     @relation(fields: [positionId], references: [positionId])
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [academicYearId])
+
+  // Constraint: A student can only vote for a specific candidate once per academic year
+  @@unique([studentId, candidateId, academicYearId])
+  @@map("votes")
+}
