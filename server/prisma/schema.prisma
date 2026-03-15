@@ -133,3 +133,25 @@ model Vote {
   @@unique([studentId, candidateId, academicYearId])
   @@map("votes")
 }
+
+// ------------------------------------------------------
+// OTP VERIFICATION
+// ------------------------------------------------------
+
+enum OtpType {
+  SIGNUP
+  LOGIN
+}
+
+model OtpVerification {
+  id        Int      @id @default(autoincrement())
+  email     String
+  type      OtpType  @default(SIGNUP)
+  otp       String
+  data      String?  @db.Text
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([email, type])
+  @@map("otp_verifications")
+}

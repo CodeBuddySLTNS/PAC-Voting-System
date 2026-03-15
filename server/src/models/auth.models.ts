@@ -20,6 +20,14 @@ export const signupSchema = z.object({
   }),
 });
 
-// Infer types
+export const verifyOtpSchema = z.object({
+  body: z.object({
+    email: z.email("Invalid email address"),
+    otp: z.string().length(6, "OTP must be 6 digits"),
+  }),
+});
+
+// infer types
 export type LoginInput = z.infer<typeof loginSchema>["body"];
 export type SignupInput = z.infer<typeof signupSchema>["body"];
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>["body"];
