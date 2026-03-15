@@ -75,14 +75,14 @@ model Class {
 }
 
 model Student {
-  id           Int     @id @default(autoincrement()) @map("id")
-  classId      Int     @map("class_id")
-  firstName    String  @map("first_name")
-  middleName   String? @map("middle_name")
-  lastName     String  @map("last_name")
-  email        String
-  passwordHash String  @map("password_hash")
-  isVerified   Boolean @default(false) @map("is_verified")
+  id         Int     @id @default(autoincrement()) @map("id")
+  classId    Int     @map("class_id")
+  firstName  String  @map("first_name")
+  middleName String? @map("middle_name")
+  lastName   String  @map("last_name")
+  email      String  @unique
+  password   String
+  isVerified Boolean @default(false) @map("is_verified")
 
   // Relations
   class       Class       @relation(fields: [classId], references: [classId])

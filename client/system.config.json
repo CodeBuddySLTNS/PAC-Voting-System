@@ -1,4 +1,4 @@
 {
   "tunneledServer": "",
-  "localServer": "http://localhost:3000"
+  "localServer": "http://localhost:5000"
 }

@@ -38,14 +38,14 @@ export function Login() {
             <form onSubmit={studentForm.handleSubmit(onSubmitStudent)} className="space-y-4 data-[state=inactive]:hidden">
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="student-studentId">Student ID</FieldLabel>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
                   <Input
-                    id="student-studentId"
-                    placeholder="Ex. 19-0123"
-                    {...studentForm.register("studentId")}
-                    data-invalid={!!studentForm.formState.errors.studentId}
+                    id="email"
+                    placeholder="juantamad@gmail.com"
+                    {...studentForm.register("email")}
+                    data-invalid={!!studentForm.formState.errors.email}
                   />
-                  <FieldError errors={[studentForm.formState.errors.studentId]} />
+                  <FieldError errors={[studentForm.formState.errors.email]} />
                 </Field>
 
                 <Field>
@@ -96,14 +96,14 @@ export function Login() {
             <form onSubmit={officerForm.handleSubmit(onSubmitOfficer)} className="space-y-4 data-[state=inactive]:hidden">
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="officer-username">Username or Email</FieldLabel>
+                  <FieldLabel htmlFor="officer-email">Email</FieldLabel>
                   <Input
-                    id="officer-username"
-                    placeholder="officer@pac.edu.ph"
-                    {...officerForm.register("username")}
-                    data-invalid={!!officerForm.formState.errors.username}
+                    id="officer-email"
+                    placeholder="juantamad@gmail.com"
+                    {...officerForm.register("email")}
+                    data-invalid={!!officerForm.formState.errors.email}
                   />
-                  <FieldError errors={[officerForm.formState.errors.username]} />
+                  <FieldError errors={[officerForm.formState.errors.email]} />
                 </Field>
 
                 <Field>

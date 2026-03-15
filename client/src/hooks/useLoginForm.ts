@@ -6,12 +6,12 @@ import { z } from "zod"
 export type LoginRole = "student" | "officer"
 
 const studentSchema = z.object({
-  studentId: z.string().min(1, "Student ID is required"),
+  email: z.string().min(1, "Email is required"),
   password: z.string().min(1, "Password is required"),
 })
 
 const officerSchema = z.object({
-  username: z.string().min(1, "Username or Email is required"),
+  email: z.string().min(1, "Email is required"),
   password: z.string().min(1, "Password is required"),
 })
 
@@ -25,7 +25,7 @@ export function useLoginForm() {
   const studentForm = useForm<StudentLoginFormValues>({
     resolver: zodResolver(studentSchema),
     defaultValues: {
-      studentId: "",
+      email: "",
       password: "",
     },
   })
@@ -33,7 +33,7 @@ export function useLoginForm() {
   const officerForm = useForm<OfficerLoginFormValues>({
     resolver: zodResolver(officerSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   })
