@@ -45,6 +45,14 @@ model AcademicYear {
   @@map("academic_years")
 }
 
+model Department {
+  id      Int    @id @default(autoincrement())
+  name    String
+  acronym String
+
+  @@map("departments")
+}
+
 model Position {
   positionId Int     @id @default(autoincrement()) @map("position_id")
   title      String // e.g., "President", "Senator", "Representative"
@@ -63,10 +71,10 @@ model Position {
 // ------------------------------------------------------
 
 model Class {
-  classId   Int     @id @default(autoincrement()) @map("class_id")
-  course    String // e.g., "BSIT"
-  yearLevel Int     @map("year_level") // e.g., 1, 2, 3, 4
-  block     String? // e.g., "A", "B"
+  classId      Int     @id @default(autoincrement()) @map("class_id")
+  departmentId String  @map("department_id")
+  yearLevel    Int     @map("year_level")
+  block        String?
 
   // Relations
   students Student[]
