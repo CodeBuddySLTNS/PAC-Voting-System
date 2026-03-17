@@ -16,7 +16,8 @@ export const signupSchema = z.object({
     lastName: z.string().min(2, "Last name must be at least 2 characters long"),
     email: z.email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
-    classId: z.number().min(1, "Class ID is required"),
+    departmentId: z.number().min(1, "Department ID is required"),
+    yearLevelId: z.number().min(1, "Year Level ID is required"),
   }),
 });
 

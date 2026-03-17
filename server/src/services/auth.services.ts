@@ -5,6 +5,7 @@ import { CustomError } from "../lib/utils";
 import type { LoginInput, SignupInput } from "../models/auth.models";
 import { generateOtp, storeOtp, verifyOtp, clearOtp } from "../lib/utils/otp";
 import { sendEmail } from "../lib/utils/email";
+import status from "http-status";
 
 const JWT_SECRET =
   process.env.ACCESS_SECRET_KEY || "default_super_secret_jwt_key";
@@ -12,35 +13,36 @@ const REFRESH_SECRET =
   process.env.REFRESH_SECRET || "default_super  _refresh_key";
 
 export const AuthService = {
-  signup: async (data: SignupInput) => {
-    // check if user already exists
+  login: async (data: LoginInput) => {
     const existingUser = await prisma.student.findUnique({
       where: { email: data.email },
     });
 
-    if (existingUser) {
-      throw new CustomError("Username already taken", 409);
+    if (!existingUser) {
+      throw new CustomError("Student not found", status.NOT_FOUND);
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const isMatch = await bcrypt.compare(data.password, existingUser.password);
 
-    const user = await prisma.student.create({
-      data: {
-        classId: data.classId,
-        email: data.email,
-        password: hashedPassword,
-        firstName: data.firstName,
-        middleName: data.middleName || null,
-        lastName: data.lastName,
-      },
+    if (isMatch) return existingUser;
+
+    throw new CustomError("Incorrect email or password", status.BAD_REQUEST);
+  },
+
+  loginAdmin: async (data: LoginInput) => {
+    const existingUser = await prisma.admin.findUnique({
+      where: { email: data.email },
     });
 
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    };
+    if (!existingUser) {
+      throw new CustomError("Admin not found", status.NOT_FOUND);
+    }
+
+    const isMatch = await bcrypt.compare(data.password, existingUser.password);
+
+    if (isMatch) return existingUser;
+
+    throw new CustomError("Incorrect email or password", status.BAD_REQUEST);
   },
 
   // validates input, generates otp, stores in db, sends email
@@ -87,13 +89,14 @@ export const AuthService = {
 
     const user = await prisma.student.create({
       data: {
-        classId: data.classId,
         email: data.email,
         password: hashedPassword,
         firstName: data.firstName,
         middleName: data.middleName || null,
         lastName: data.lastName,
-        isVerified: true,
+        isActive: false,
+        departmentId: data.departmentId,
+        yearLevelId: data.yearLevelId,
       },
     });
 
