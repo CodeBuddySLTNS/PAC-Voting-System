@@ -1,5 +1,5 @@
-import { AuthLayout } from "@/components/auth-layout"
-import { Signup } from "@/components/signup"
+import { AuthLayout } from "@/components/layouts/auth-layout";
+import { Signup } from "@/components/signup";
 
 export default function SignupPage() {
   return (
@@ -9,5 +9,5 @@ export default function SignupPage() {
     >
       <Signup />
     </AuthLayout>
-  )
+  );
 }
