@@ -46,11 +46,20 @@ model AcademicYear {
 }
 
 model Department {
-  id      Int    @id @default(autoincrement())
-  name    String
-  acronym String
+  id       Int       @id @default(autoincrement())
+  name     String
+  acronym  String
+  students Student[]
 
   @@map("departments")
+}
+
+model YearLevel {
+  id       Int       @id @default(autoincrement())
+  year     String
+  students Student[]
+
+  @@map("year_level")
 }
 
 model Position {
@@ -70,30 +79,21 @@ model Position {
 // VOTER & CANDIDATE DATA
 // ------------------------------------------------------
 
-model Class {
-  classId      Int     @id @default(autoincrement()) @map("class_id")
-  departmentId String  @map("department_id")
-  yearLevel    Int     @map("year_level")
-  block        String?
-
-  // Relations
-  students Student[]
-
-  @@map("classes")
-}
-
 model Student {
   id         Int     @id @default(autoincrement()) @map("id")
-  classId    Int     @map("class_id")
   firstName  String  @map("first_name")
   middleName String? @map("middle_name")
   lastName   String  @map("last_name")
   email      String  @unique
   password   String
-  isVerified Boolean @default(false) @map("is_verified")
+  isActive   Boolean @default(false) @map("is_active")
+
+  departmentId Int @map("department_id")
+  yearLevelId  Int @map("year_level_id")
 
   // Relations
-  class       Class       @relation(fields: [classId], references: [classId])
+  department  Department  @relation(fields: [departmentId], references: [id])
+  yearLevel   YearLevel   @relation(fields: [yearLevelId], references: [id])
   candidacies Candidate[]
   votesCast   Vote[]
 
