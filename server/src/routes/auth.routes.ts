@@ -11,12 +11,7 @@ import authenticate from "../middlewares/authentication";
 
 const router = Router();
 
-router.post("/login", validate(loginSchema), tryCatch(AuthController.login));
-router.post(
-  "/login-admin",
-  validate(loginSchema),
-  tryCatch(AuthController.loginAdmin),
-);
+router.post("/login", validate(loginSchema), tryCatch(AuthController.loginOtp));
 router.post(
   "/signup/send-otp",
   validate(signupSchema),

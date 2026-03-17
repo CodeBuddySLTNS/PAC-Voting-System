@@ -1,31 +1,37 @@
 import type { Request, Response } from "express";
 import { CustomError, generateTokens } from "../lib/utils";
 import { AuthService } from "../services/auth.services";
+import { User } from "../types/data.types";
 
 export const AuthController = {
-  login: async (req: Request, res: Response) => {
-    const { password, ...student } = await AuthService.login(req.body);
+  loginOtp: async (req: Request, res: Response) => {
+    const isAdmin = req.query?.isAdmin;
 
-    const { refreshToken, accessToken } = generateTokens(student);
-
-    res.cookie("jwt_rf", refreshToken);
+    await AuthService.loginOtp(req.body, isAdmin ? "admin" : undefined);
 
     res.json({
-      token: accessToken,
-      user: student,
+      email: req.body.email,
     });
   },
 
-  loginAdmin: async (req: Request, res: Response) => {
-    const { password, ...student } = await AuthService.loginAdmin(req.body);
+  loginVerifyOtp: async (req: Request, res: Response) => {
+    const { email, otp } = req.body;
+    const isAdmin = req.query?.isAdmin;
 
-    const { refreshToken, accessToken } = generateTokens(student);
+    const { password, ...user } = (await AuthService.verifyLoginOtp(
+      email,
+      otp,
+    )) as User;
+
+    const { refreshToken, accessToken } = generateTokens(user as User);
 
     res.cookie("jwt_rf", refreshToken);
 
+    isAdmin ? (user.adminId = user.id) : (user.studentId = user.id);
+
     res.json({
       token: accessToken,
-      user: student,
+      user,
     });
   },
 
