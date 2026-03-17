@@ -20,7 +20,7 @@ interface SendEmailParams {
 // sends an email via brevo smtp
 export const sendEmail = async ({ to, subject, html }: SendEmailParams) => {
   await transporter.sendMail({
-    from: `"Archie Ducoy" <${SENDER_EMAIL}>`,
+    from: `"${SENDER_EMAIL}"`,
     to,
     subject,
     html,

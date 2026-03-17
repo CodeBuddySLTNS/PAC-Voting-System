@@ -111,7 +111,7 @@ export function Login() {
               <div className="mt-2 text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link
-                  to="/auth/signup"
+                  to="/signup"
                   className="font-medium text-primary underline-offset-4 hover:underline"
                 >
                   Sign up
