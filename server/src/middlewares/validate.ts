@@ -20,7 +20,7 @@ export const validate =
         field: err.path.join("."),
         message: err.message,
       }));
-
+      console.log("Zod Validation Error:", errorMessages || error);
       next(new CustomError("Validation Error", 400, errorMessages));
     }
   };

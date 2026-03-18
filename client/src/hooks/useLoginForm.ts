@@ -103,9 +103,13 @@ export function useLoginForm() {
     },
     onError: (error) => {
       if (isAxiosError(error)) {
-        toast.error(error?.response?.data?.message || "Invalid OTP");
-      } else {
-        toast.error("An unexpected error occurred");
+        if (error.code === "ERR_NETWORK") {
+          toast.error("Unable to connect to the server");
+        } else {
+          toast.error(
+            error?.response?.data?.message || "An unexpected error occurred"
+          );
+        }
       }
     },
   });
@@ -123,7 +127,7 @@ export function useLoginForm() {
     handleCredentialsSubmit(data, true);
 
   const onVerifyOtp = (data: OtpFormValues) => {
-    verifyOtpMutation.mutate(data);
+    verifyOtpMutation.mutate({ email: emailForOtp, otp: data.pin });
   };
 
   const isLoading = loginMutation.isPending || verifyOtpMutation.isPending;

@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
-import { CustomError } from "../lib/utils";
+import { CustomError, generateTokens } from "../lib/utils";
 import type { LoginInput, SignupInput } from "../models/auth.models";
 import { generateOtp, storeOtp, verifyOtp, clearOtp } from "../lib/utils/otp";
 import { sendEmail } from "../lib/utils/email";
@@ -127,5 +127,20 @@ export const AuthService = {
       firstName: user.firstName,
       lastName: user.lastName,
     };
+  },
+
+  verifyRefreshToken: (refreshToken: string) => {
+    try {
+      const decodedToken = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_SECRET_KEY!,
+      );
+      return decodedToken;
+    } catch (error) {
+      throw new CustomError(
+        "Invalid or expired refresh token",
+        status.FORBIDDEN,
+      );
+    }
   },
 };

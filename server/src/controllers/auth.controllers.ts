@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { CustomError, generateTokens } from "../lib/utils";
 import { AuthService } from "../services/auth.services";
 import { User } from "../types/data.types";
+import status from "http-status";
 
 export const AuthController = {
   loginOtp: async (req: Request, res: Response) => {
@@ -52,5 +53,18 @@ export const AuthController = {
       message: "Email verified and account created successfully",
       data: user,
     });
+  },
+
+  refresh: async (req: Request, res: Response) => {
+    const isAdmin = req.query?.isAdmin;
+    const refreshToken = req.cookies.jwt_rf;
+    if (!refreshToken)
+      throw new CustomError("No refresh token", status.UNAUTHORIZED);
+
+    const user = AuthService.verifyRefreshToken(refreshToken) as User;
+
+    const { accessToken } = generateTokens(user);
+
+    res.json({ accessToken });
   },
 };

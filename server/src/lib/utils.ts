@@ -27,7 +27,12 @@ export const generateReferenceNumber = () => {
 };
 
 export const generateTokens = (user: User) => {
-  const payload = { id: user.id, email: user.email };
+  const payload = {
+    id: user.id,
+    email: user.email,
+    studentId: user.studentId,
+    adminId: user.adminId,
+  };
 
   const accessToken = jwt.sign(payload, ACCESS_SECRET, {
     expiresIn: ACCESS_EXPIRY,
