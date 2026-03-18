@@ -22,7 +22,7 @@ export const AuthService = {
     }
 
     if (!existingUser) {
-      throw new CustomError("Student not found", status.NOT_FOUND);
+      throw new CustomError("Incorrect email or password", status.NOT_FOUND);
     }
 
     const isMatch = await bcrypt.compare(data.password, existingUser.password);
@@ -33,15 +33,16 @@ export const AuthService = {
 
       await sendEmail({
         to: data.email,
-        subject: "PAC Voting System - Verify Your Email",
+        subject: `PAC Voting System - Verify Your Email #${Date.now()}`,
         html: `
-        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px;">
-          <h2 style="line-height: 2;">Email Verification</h2>
-          <p>Your verification code is:</p>
-          <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px;">
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px; text-align: center;">
+          <h2 style="margin: 3px;">Email Verification</h2>
+          <p style="margin: 3px;">Your verification code is:</p>
+          <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px; margin-top: 4px">
             ${otp}
           </div>
           <p style="color: #888; margin-top: 16px;">This code expires in 5 minutes.</p>
+          <p style="color: #888; margin-top: 16px;">If you did not request this code, please ignore this email.</p>
         </div>
       `,
       });

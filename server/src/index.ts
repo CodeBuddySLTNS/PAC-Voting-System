@@ -8,7 +8,12 @@ import authRoutes from "./routes/auth.routes";
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: ["http://localhost:5173"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use((req, res, next) => {
   console.log(req.method, req.path);

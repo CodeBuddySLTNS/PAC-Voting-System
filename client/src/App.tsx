@@ -9,6 +9,7 @@ import LoginPage from "@/pages/auth/login";
 import SignupPage from "@/pages/auth/signup";
 import ProtectedRoute from "./components/protected-route/protected-route";
 import { useMainStore } from "./store";
+import { Toaster } from "./components/ui/sonner";
 
 const RoleAccess = () => {
   if (useMainStore.getState().user?.adminId) {
@@ -20,6 +21,7 @@ const RoleAccess = () => {
 export function App() {
   return (
     <ThemeProvider>
+      <Toaster richColors position="bottom-right" />
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />

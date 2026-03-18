@@ -13,6 +13,12 @@ const router = Router();
 
 router.post("/login", validate(loginSchema), tryCatch(AuthController.loginOtp));
 router.post(
+  "/login/verify",
+  validate(verifyOtpSchema),
+  tryCatch(AuthController.loginVerifyOtp),
+);
+
+router.post(
   "/signup/send-otp",
   validate(signupSchema),
   tryCatch(AuthController.sendOtp),
