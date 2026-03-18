@@ -30,8 +30,8 @@ export const generateTokens = (user: User) => {
   const payload = {
     id: user.id,
     email: user.email,
-    studentId: user.studentId,
-    adminId: user.adminId,
+    studentId: user.studentId ?? null,
+    adminId: user.adminId ?? null,
   };
 
   const accessToken = jwt.sign(payload, ACCESS_SECRET, {

@@ -143,4 +143,43 @@ export const AuthService = {
       );
     }
   },
+
+  getProfile: async (email: string, role: "student" | "admin") => {
+    if (role === "student") {
+      const user = await prisma.student.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          middleName: true,
+          lastName: true,
+          department: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          yearLevel: {
+            select: {
+              id: true,
+              year: true,
+            },
+          },
+        },
+      });
+      return user;
+    }
+    const user = await prisma.admin.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+      },
+    });
+    return user;
+  },
 };

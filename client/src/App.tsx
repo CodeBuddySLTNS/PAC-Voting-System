@@ -10,15 +10,42 @@ import SignupPage from "@/pages/auth/signup";
 import ProtectedRoute from "./components/protected-route/protected-route";
 import { useMainStore } from "./store";
 import { Toaster } from "./components/ui/sonner";
+import { useQuery } from "@tanstack/react-query";
+import { coleAPI } from "./lib/utils";
+import { useEffect } from "react";
 
 const RoleAccess = () => {
-  if (useMainStore.getState().user?.adminId) {
+  const user = useMainStore((state) => state.user);
+  console.log(user);
+  if (user?.adminId) {
     return <Navigate to="/dashboard" />;
   }
   return <Navigate to="/student" />;
 };
 
 export function App() {
+  const loading = useMainStore((state) => state.loading);
+
+  const { data, error } = useQuery({
+    queryKey: ["me"],
+    queryFn: coleAPI("/api/auth/me"),
+  });
+
+  useEffect(() => {
+    if (data && !error) {
+      useMainStore.getState().setUser(data.user);
+      useMainStore.getState().setLoading(false);
+    }
+
+    if (error) {
+      useMainStore.getState().setLoading(false);
+    }
+  }, [data, error]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <ThemeProvider>
       <Toaster richColors position="bottom-right" />

@@ -24,11 +24,11 @@ export const AuthController = {
       otp,
     )) as User;
 
+    isAdmin ? (user.adminId = user.id) : (user.studentId = user.id);
+
     const { refreshToken, accessToken } = generateTokens(user as User);
 
     res.cookie("jwt_rf", refreshToken);
-
-    isAdmin ? (user.adminId = user.id) : (user.studentId = user.id);
 
     res.json({
       token: accessToken,
@@ -55,7 +55,7 @@ export const AuthController = {
     });
   },
 
-  refresh: async (req: Request, res: Response) => {
+  refreshToken: async (req: Request, res: Response) => {
     const isAdmin = req.query?.isAdmin;
     const refreshToken = req.cookies.jwt_rf;
     if (!refreshToken)
@@ -66,5 +66,18 @@ export const AuthController = {
     const { accessToken } = generateTokens(user);
 
     res.json({ accessToken });
+  },
+
+  getProfile: async (req: Request, res: Response) => {
+    const user = res.locals.user as User;
+    const profile = await AuthService.getProfile(
+      user.email,
+      user.adminId ? "admin" : "student",
+    );
+
+    res.status(200).json({
+      success: true,
+      user: { ...profile, adminId: user.adminId, studentId: user.studentId },
+    });
   },
 };

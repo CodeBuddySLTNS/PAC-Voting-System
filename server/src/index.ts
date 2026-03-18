@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import errorHandler from "./middlewares/error-handler";
 
 import authRoutes from "./routes/auth.routes";
@@ -14,6 +15,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express.json());
 app.use((req, res, next) => {
   console.log(req.method, req.path);

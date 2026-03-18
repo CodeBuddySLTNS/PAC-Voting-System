@@ -29,4 +29,7 @@ router.post(
   tryCatch(AuthController.verifyOtp),
 );
 
+router.get("/refresh-token", tryCatch(AuthController.refreshToken));
+router.get("/me", authenticate, tryCatch(AuthController.getProfile));
+
 export default router;
