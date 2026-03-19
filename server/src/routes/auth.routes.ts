@@ -31,5 +31,6 @@ router.post(
 
 router.get("/refresh-token", tryCatch(AuthController.refreshToken));
 router.get("/me", authenticate, tryCatch(AuthController.getProfile));
+router.post("/logout", authenticate, tryCatch(AuthController.logout));
 
 export default router;

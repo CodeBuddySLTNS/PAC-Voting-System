@@ -79,7 +79,7 @@ export const AuthService = {
 
     await sendEmail({
       to: data.email,
-      subject: "PAC Voting System - Verify Your Email",
+      subject: "PAC Voting System - Verify Your Email #" + Date.now(),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px;">
           <h2 style="line-height: 2;">Email Verification</h2>

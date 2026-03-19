@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LogOut,
   Menu,
@@ -13,6 +13,10 @@ import {
 import { useMainStore } from "../../store";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
+import { coleAPI } from "@/lib/utils";
+import { isAxiosError } from "axios";
 
 interface SidebarItem {
   name: string;
@@ -24,6 +28,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const user = useMainStore((state) => state.user);
+  const navigate = useNavigate();
 
   const adminLinks: SidebarItem[] = [
     {
@@ -59,11 +64,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const links = user?.adminId ? adminLinks : studentLinks;
 
+  const logoutMutation = useMutation({
+    mutationFn: coleAPI("/api/auth/logout", "POST"),
+    onSuccess: () => {
+      useMainStore.getState().setUser(null);
+      useMainStore.getState().setToken("");
+      navigate("/login");
+    },
+    onError: (error) => {
+      if (isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Failed to logout");
+      }
+    },
+  });
+
   const handleLogout = () => {
-    useMainStore.getState().setUser(null);
-    useMainStore.getState().setToken("");
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+    logoutMutation.mutate({});
   };
 
   return (

@@ -2,21 +2,33 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { coleAPI } from "@/lib/utils";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 
-const signupSchema = z.object({
+export const signupSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
   middleName: z.string().optional(),
   lastName: z.string().min(2, "Last name is required"),
-  departmentId: z.string().min(1, "Department is required"),
-  yearLevelId: z.string().min(1, "Year Level is required"),
+  departmentId: z.number().min(1, "Department is required"),
+  yearLevelId: z.number().min(1, "Year Level is required"),
   email: z.email("Invalid email address").min(1, "Email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const verifyOtpSchema = z.object({
+  pin: z.string().length(6, "Verification code must be 6 digits"),
 });
 
 export type SignupFormValues = z.infer<typeof signupSchema>;
+export type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>;
 
 export function useSignupForm() {
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const [step, setStep] = useState<"credentials" | "otp">("credentials");
+  const [emailForOtp, setEmailForOtp] = useState("");
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -24,24 +36,78 @@ export function useSignupForm() {
       firstName: "",
       middleName: "",
       lastName: "",
+      departmentId: 0,
+      yearLevelId: 0,
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (data: SignupFormValues) => {
-    setIsLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Signup submitted:", data);
-    } finally {
-      setIsLoading(false);
-    }
+  const otpForm = useForm<VerifyOtpFormValues>({
+    resolver: zodResolver(verifyOtpSchema),
+    defaultValues: {
+      pin: "",
+    },
+  });
+
+  const sendOtpMutation = useMutation<unknown, Error, SignupFormValues>({
+    mutationFn: coleAPI("/api/auth/signup/send-otp", "POST"),
+    onSuccess: (_, variables) => {
+      setEmailForOtp(variables.email);
+      setStep("otp");
+      toast.success("Verification code sent to your email");
+    },
+    onError: (error: unknown) => {
+      if (isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Failed to send OTP");
+      } else {
+        toast.error("Failed to send OTP");
+      }
+    },
+  });
+
+  const verifyOtpMutation = useMutation<
+    unknown,
+    Error,
+    { email: string; otp: string }
+  >({
+    mutationFn: coleAPI("/api/auth/signup/verify", "POST"),
+    onSuccess: () => {
+      toast.success("Account created successfully!");
+      navigate("/login");
+    },
+    onError: (error: unknown) => {
+      if (isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message || "Invalid verification code"
+        );
+      } else {
+        toast.error("Invalid verification code");
+      }
+    },
+  });
+
+  const onSubmitSignup = (data: SignupFormValues) => {
+    sendOtpMutation.mutate(data);
   };
+
+  const onSubmitOtp = (data: VerifyOtpFormValues) => {
+    verifyOtpMutation.mutate({
+      email: emailForOtp,
+      otp: data.pin,
+    });
+  };
+
+  const isLoading = sendOtpMutation.isPending || verifyOtpMutation.isPending;
 
   return {
     form,
+    otpForm,
+    step,
+    setStep,
     isLoading,
-    onSubmit,
+    emailForOtp,
+    onSubmitSignup,
+    onSubmitOtp,
   };
 }

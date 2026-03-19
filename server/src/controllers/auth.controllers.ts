@@ -80,4 +80,14 @@ export const AuthController = {
       user: { ...profile, adminId: user.adminId, studentId: user.studentId },
     });
   },
+
+  logout: async (req: Request, res: Response) => {
+    res.clearCookie("jwt_rf", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+    });
+
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+  },
 };
