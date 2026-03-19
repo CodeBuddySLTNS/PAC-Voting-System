@@ -10,13 +10,13 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Left side - Branding (Hidden on mobile) */}
-      <div className="relative hidden flex-col bg-primary p-10 text-primary-foreground lg:flex">
+      <div className="relative hidden flex-col bg-primary p-10 text-primary-foreground lg:flex dark:bg-black">
         <div className="absolute inset-0 bg-linear-to-t from-primary/80 to-primary mix-blend-multiply" />
 
         <div className="absolute inset-0 bg-[url('/images/bg.webp')] bg-cover bg-center opacity-20" />
 
         <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-foreground p-1.5 text-primary shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-foreground p-1.5 text-primary shadow-sm dark:bg-white">
             <img
               src="/images/sgo-logo.svg"
               alt="SGO Logo"
@@ -36,13 +36,13 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         </div>
 
         <div className="relative z-10 mt-auto">
-          <p className="mb-2 font-semibold tracking-wider text-primary-foreground/70 uppercase">
+          <p className="mb-2 font-semibold tracking-wider text-primary-foreground/70 uppercase dark:text-foreground">
             Online Voting System
           </p>
-          <h1 className="text-4xl font-bold tracking-tight">
+          <h1 className="text-4xl font-bold tracking-tight dark:text-primary">
             Shape the Future of <br /> Philippine Advent College
           </h1>
-          <p className="mt-4 max-w-lg text-lg text-primary-foreground/80">
+          <p className="mt-4 max-w-lg text-lg text-primary-foreground/80 dark:text-foreground">
             Secure, transparent, and fair student government elections. Your
             vote matters in building our community.
           </p>
