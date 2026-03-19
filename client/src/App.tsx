@@ -8,6 +8,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import LoginPage from "@/pages/auth/login";
 import SignupPage from "@/pages/auth/signup";
 import ProtectedRoute from "./components/protected-route/protected-route";
+import DashboardLayout from "./components/layouts/dashboard-layout";
+import AdminDashboard from "./components/admin-dashboard/admin-dashboard";
+import StudentDashboard from "./components/student-dashboard/student-dashboard";
 import { useMainStore } from "./store";
 import { Toaster } from "./components/ui/sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -57,8 +60,22 @@ export function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<RoleAccess />} />
 
-            <Route path="/dashboard" element={<div>Dashboard</div>} />
-            <Route path="/student" element={<div>Student</div>} />
+            <Route
+              path="/dashboard"
+              element={
+                <DashboardLayout>
+                  <AdminDashboard />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/student"
+              element={
+                <DashboardLayout>
+                  <StudentDashboard />
+                </DashboardLayout>
+              }
+            />
           </Route>
         </Routes>
       </Router>
