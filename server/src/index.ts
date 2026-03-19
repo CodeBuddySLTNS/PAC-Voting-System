@@ -6,6 +6,7 @@ import errorHandler from "./middlewares/error-handler";
 
 import authRoutes from "./routes/auth.routes";
 import configRoutes from "./routes/config.routes";
+import electionRoutes from "./routes/election.routes";
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/config", configRoutes);
+app.use("/api/elections", electionRoutes);
 
 // error handler
 app.use(errorHandler);

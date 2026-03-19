@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/protected-route/protected-route";
 import DashboardLayout from "./components/layouts/dashboard-layout";
 import AdminDashboard from "./components/admin-dashboard/admin-dashboard";
 import StudentDashboard from "./components/student-dashboard/student-dashboard";
+import { ManageElections } from "./components/manage-elections";
 import { useMainStore } from "./store";
 import { Toaster } from "./components/ui/sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -65,6 +66,14 @@ export function App() {
               element={
                 <DashboardLayout>
                   <AdminDashboard />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/dashboard/elections"
+              element={
+                <DashboardLayout>
+                  <ManageElections />
                 </DashboardLayout>
               }
             />

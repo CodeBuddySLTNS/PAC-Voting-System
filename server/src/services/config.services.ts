@@ -18,7 +18,19 @@ export const ConfigService = {
         id: true,
         year: true,
       },
-      orderBy: { year: "asc" },
+      orderBy: { id: "asc" },
+    });
+  },
+
+  getAcademicYears: async () => {
+    return prisma.academicYear.findMany({
+      orderBy: { academicYearId: "desc" },
+    });
+  },
+
+  createAcademicYear: async (name: string) => {
+    return prisma.academicYear.create({
+      data: { name },
     });
   },
 };
