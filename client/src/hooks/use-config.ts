@@ -50,6 +50,56 @@ export function useAcademicYears() {
   });
 }
 
+export interface Position {
+  positionId: number;
+  title: string;
+  maxVotes: number;
+  isGlobal: boolean;
+}
+
+export function usePositions() {
+  return useQuery({
+    queryKey: ["positions"],
+    queryFn: async () => {
+      const response = await coleAPI("/api/config/positions", "GET")({});
+      return response.data as Position[];
+    },
+    staleTime: 1000 * 60 * 60,
+  });
+}
+
+export function useCreatePosition() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (data: { title: string; maxVotes: number; isGlobal: boolean }) =>
+      coleAPI("/api/config/positions", "POST")(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["positions"] });
+      toast.success("Position created successfully");
+    },
+    onError: (error: unknown) => {
+      if (isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Failed to create position");
+      } else {
+        toast.error("Failed to create position");
+      }
+    },
+  });
+}
+
+export function useSearchStudents(query: string) {
+  return useQuery({
+    queryKey: ["students-search", query],
+    queryFn: async () => {
+      if (!query || query.length < 2) return [];
+      const response = await coleAPI(`/api/config/students/search?q=${encodeURIComponent(query)}`, "GET")({});
+      return response.data;
+    },
+    enabled: query.length >= 2,
+  });
+}
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";

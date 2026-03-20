@@ -190,7 +190,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <AvatarImage
                 src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.firstName}`}
               />
-              <AvatarFallback className="bg-primary-foreground/10 font-semibold text-primary-foreground">
+              <AvatarFallback className="bg-primary-foreground/10 font-semibold text-primary-foreground dark:bg-foreground/10 dark:text-white">
                 {user?.firstName?.[0]}
                 {user?.lastName?.[0]}
               </AvatarFallback>

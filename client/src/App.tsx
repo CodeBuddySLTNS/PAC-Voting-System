@@ -12,11 +12,13 @@ import DashboardLayout from "./components/layouts/dashboard-layout";
 import AdminDashboard from "./components/admin-dashboard/admin-dashboard";
 import StudentDashboard from "./components/student-dashboard/student-dashboard";
 import { ManageElections } from "./components/manage-elections";
+import { ManageCandidates } from "./components/manage-candidates";
 import { useMainStore } from "./store";
 import { Toaster } from "./components/ui/sonner";
 import { useQuery } from "@tanstack/react-query";
 import { coleAPI } from "./lib/utils";
 import { useEffect } from "react";
+import { Loader } from "lucide-react";
 
 const RoleAccess = () => {
   const user = useMainStore((state) => state.user);
@@ -47,7 +49,11 @@ export function App() {
   }, [data, error]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader size={40} className="animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -74,6 +80,14 @@ export function App() {
               element={
                 <DashboardLayout>
                   <ManageElections />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/dashboard/elections/:id/candidates"
+              element={
+                <DashboardLayout>
+                  <ManageCandidates />
                 </DashboardLayout>
               }
             />

@@ -7,8 +7,9 @@ import {
 } from "@/hooks/use-elections";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Users } from "lucide-react";
 import { CreateElectionDialog } from "./create-election-dialog";
+import { useNavigate } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,12 +40,17 @@ export function ManageElections() {
   const { data: elections, isLoading } = useElections();
   const deleteMutation = useDeleteElection();
   const updateMutation = useUpdateElection();
+  const navigate = useNavigate();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const toggleActive = (id: number, currentStatus: boolean) => {
     updateMutation.mutate({ id, isActive: !currentStatus });
+  };
+
+  const openCandidates = (id: number) => {
+    navigate(`/dashboard/elections/${id}/candidates`);
   };
 
   return (
@@ -126,6 +132,15 @@ export function ManageElections() {
                           disabled={updateMutation.isPending}
                         >
                           {election.isActive ? "Deactivate" : "Activate"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="cursor-pointer gap-2"
+                          onClick={() => openCandidates(election.id)}
+                        >
+                          <Users className="h-4 w-4" />
+                          Candidates
                         </Button>
                         <Button
                           variant="destructive"

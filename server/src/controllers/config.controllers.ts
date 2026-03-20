@@ -29,4 +29,29 @@ export const ConfigController = {
     const year = await ConfigService.createAcademicYear(req.body.name);
     res.status(201).json({ success: true, data: year });
   },
+
+  getPositions: async (req: Request, res: Response) => {
+    const positions = await ConfigService.getPositions();
+    res.json({ success: true, data: positions });
+  },
+
+  createPosition: async (req: Request, res: Response) => {
+    const { title, maxVotes, isGlobal } = req.body;
+    if (!title || maxVotes === undefined || isGlobal === undefined) {
+      res.status(400).json({ success: false, message: "Missing required position mapped fields." });
+      return;
+    }
+    const position = await ConfigService.createPosition({ title, maxVotes, isGlobal });
+    res.status(201).json({ success: true, data: position });
+  },
+
+  searchStudents: async (req: Request, res: Response) => {
+    const query = req.query.q as string;
+    if (!query || query.trim().length < 2) {
+      res.json({ success: true, data: [] });
+      return;
+    }
+    const students = await ConfigService.searchStudents(query.trim());
+    res.json({ success: true, data: students });
+  },
 };

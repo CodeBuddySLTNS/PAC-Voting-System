@@ -33,4 +33,37 @@ export const ConfigService = {
       data: { name },
     });
   },
+
+  getPositions: async () => {
+    return prisma.position.findMany({
+      orderBy: { positionId: "asc" },
+    });
+  },
+
+  createPosition: async (data: { title: string; maxVotes: number; isGlobal: boolean }) => {
+    return prisma.position.create({
+      data,
+    });
+  },
+
+  searchStudents: async (query: string) => {
+    return prisma.student.findMany({
+      where: {
+        OR: [
+          { firstName: { contains: query } },
+          { lastName: { contains: query } },
+          { email: { contains: query } },
+        ],
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        department: { select: { acronym: true } },
+        yearLevel: { select: { year: true } },
+      },
+      take: 10,
+    });
+  },
 };
