@@ -10,7 +10,7 @@ import SignupPage from "@/pages/auth/signup";
 import ProtectedRoute from "./components/protected-route/protected-route";
 import DashboardLayout from "./components/layouts/dashboard-layout";
 import AdminDashboard from "./components/admin-dashboard/admin-dashboard";
-import StudentDashboard from "./components/student-dashboard/student-dashboard";
+import StudentDashboard from "./pages/student/student-dashboard";
 import { ManageElections } from "./components/manage-elections";
 import { ManageCandidates } from "./components/manage-candidates";
 import { useMainStore } from "./store";

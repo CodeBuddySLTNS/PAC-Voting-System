@@ -1,6 +1,6 @@
 import { useMainStore } from "../../store";
-import ElectionCard from "./election-card";
-import { Card, CardContent } from "../ui/card";
+import ElectionCard from "./components/election-card";
+import { Card, CardContent } from "../../components/ui/card";
 import { CheckCircle2, Ticket } from "lucide-react";
 
 export default function StudentDashboard() {
