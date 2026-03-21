@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/protected-route/protected-route";
 import DashboardLayout from "./components/layouts/dashboard-layout";
 import AdminDashboard from "./components/admin-dashboard/admin-dashboard";
 import StudentDashboard from "./pages/student/student-dashboard";
+import ElectionBallotPage from "./pages/student/election-ballot";
 import { ManageElections } from "./components/manage-elections";
 import { ManageCandidates } from "./components/manage-candidates";
 import { useMainStore } from "./store";
@@ -96,6 +97,14 @@ export function App() {
               element={
                 <DashboardLayout>
                   <StudentDashboard />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/student/election/:id/vote"
+              element={
+                <DashboardLayout>
+                  <ElectionBallotPage />
                 </DashboardLayout>
               }
             />

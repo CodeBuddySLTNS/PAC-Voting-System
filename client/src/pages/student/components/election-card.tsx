@@ -7,19 +7,20 @@ import {
 } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
 import { CalendarIcon, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ElectionCardProps {
+  id: number;
   title: string;
-  startDate: string;
-  endDate: string;
+  academicYear: string;
   status: "active" | "upcoming" | "ended";
   voted: boolean;
 }
 
 export default function ElectionCard({
+  id,
   title,
-  startDate,
-  endDate,
+  academicYear,
   status,
   voted,
 }: ElectionCardProps) {
@@ -62,8 +63,8 @@ export default function ElectionCard({
         <div className="flex items-center gap-2 rounded-lg bg-zinc-50 p-3 text-sm text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400">
           <CalendarIcon className="h-4 w-4 opacity-70" />
           <div className="flex flex-col">
-            <span>Starts: {startDate}</span>
-            <span>Ends: {endDate}</span>
+            <span>Academic Year: {academicYear}</span>
+            <span>Status: {statusLabels[status]}</span>
           </div>
         </div>
       </CardContent>
@@ -71,12 +72,19 @@ export default function ElectionCard({
       <CardFooter className="justify-end pt-0">
         {status === "active" ? (
           <Button
+            asChild={!voted}
             className="w-full bg-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 sm:w-auto"
             disabled={voted}
             variant={voted ? "secondary" : "default"}
           >
-            {voted ? "View Results" : "Cast Vote"}
-            <ChevronRight className="ml-1 h-4 w-4" />
+            {voted ? (
+              "View Results"
+            ) : (
+              <Link to={`/student/election/${id}/vote`}>
+                Cast Vote
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </Link>
+            )}
           </Button>
         ) : status === "upcoming" ? (
           <Button variant="outline" className="w-full sm:w-auto" disabled>

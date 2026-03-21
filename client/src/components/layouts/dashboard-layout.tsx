@@ -163,7 +163,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between overflow-hidden border-b border-primary/20 bg-primary px-4 text-primary-foreground sm:px-6 lg:px-8 dark:border-foreground/10 dark:bg-black dark:text-white">
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-primary/80 to-primary mix-blend-multiply" />
           <div className="pointer-events-none absolute inset-0 bg-[url('/images/bg.webp')] bg-cover bg-top opacity-20" />
-
           <div className="relative z-10 flex items-center">
             <button
               className="mr-3 -ml-2 rounded-md p-2 text-primary-foreground/60 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground lg:hidden"
@@ -176,6 +175,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               location.pathname.split("/").pop() === "student"
                 ? "Overview"
                 : location.pathname.split("/").pop()}
+            </h1>
+
+            <h1 className="text-xl font-semibold tracking-tight capitalize sm:block">
+              PAC Voting System
             </h1>
           </div>
 

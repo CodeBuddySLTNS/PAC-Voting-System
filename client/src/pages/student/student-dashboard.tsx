@@ -1,55 +1,56 @@
 import { useMainStore } from "../../store";
 import ElectionCard from "./components/election-card";
 import { Card, CardContent } from "../../components/ui/card";
-import { CheckCircle2, Ticket } from "lucide-react";
+import { CheckCircle2, Ticket, AlertCircle } from "lucide-react";
+import { useStudentElections } from "@/hooks/use-voting";
 
 export default function StudentDashboard() {
   const user = useMainStore((state) => state.user);
+  const { data: elections, isLoading, error } = useStudentElections();
 
-  // Mock data for the UI
-  const elections = [
-    {
-      id: 1,
-      title: "Student Council Election 2026",
-      startDate: "Oct 15, 2026 - 08:00 AM",
-      endDate: "Oct 17, 2026 - 05:00 PM",
-      status: "active" as const,
-      voted: false,
-    },
-    {
-      id: 2,
-      title: "Department Representatives",
-      startDate: "Nov 01, 2026 - 08:00 AM",
-      endDate: "Nov 02, 2026 - 05:00 PM",
-      status: "upcoming" as const,
-      voted: false,
-    },
-    {
-      id: 3,
-      title: "Clubs & Society Presidents",
-      startDate: "Sep 10, 2026 - 08:00 AM",
-      endDate: "Sep 12, 2026 - 05:00 PM",
-      status: "ended" as const,
-      voted: true,
-    },
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <p className="text-sm font-medium text-zinc-500">
+          Loading elections...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4 text-center">
+        <AlertCircle className="h-10 w-10 text-rose-500" />
+        <div className="space-y-1">
+          <h3 className="text-xl font-bold tracking-tight">
+            Failed to load elections
+          </h3>
+          <p className="text-sm text-zinc-500">
+            Please try refreshing the page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const activeElectionsCount = elections?.filter((e) => e.isActive).length || 0;
+  const votedCount = elections?.filter((e) => e.voted).length || 0;
+  const pendingCount =
+    activeElectionsCount -
+    (elections?.filter((e) => e.voted && e.isActive).length || 0);
 
   return (
     <div className="animate-in space-y-8 duration-500 fade-in slide-in-from-bottom-4">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-8 text-white shadow-lg shadow-indigo-600/20">
-        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-black/10 blur-xl" />
-
-        <div className="relative z-10">
-          <h2 className="mb-2 text-3xl font-bold tracking-tight">
-            Welcome back, {user?.firstName}! 👋
-          </h2>
-          <p className="max-w-xl text-indigo-100">
-            Here you can find your active elections, cast your votes, and track
-            your voting history. Make your voice heard.
-          </p>
-        </div>
+      <div className="flex flex-col gap-1.5">
+        <h2 className="text-3xl font-bold tracking-tight">
+          Welcome back, {user?.firstName}!
+        </h2>
+        <p>
+          Here you can find your active elections, cast your votes, and track
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -73,13 +74,13 @@ export default function StudentDashboard() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-zinc-500">Total Votes Cast</span>
                   <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-                    4
+                    {votedCount}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-zinc-500">Pending Elections</span>
                   <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                    1
+                    {pendingCount}
                   </span>
                 </div>
               </div>
@@ -107,8 +108,18 @@ export default function StudentDashboard() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {elections.map((election) => (
-              <ElectionCard key={election.id} {...election} />
+            {elections?.length === 0 && (
+              <p className="text-sm text-zinc-500">No elections found.</p>
+            )}
+            {elections?.map((election) => (
+              <ElectionCard
+                key={election.id}
+                id={election.id}
+                title={election.title}
+                academicYear={election.academicYear?.name || "Unknown"}
+                status={election.status}
+                voted={election.voted}
+              />
             ))}
           </div>
         </div>
