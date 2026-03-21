@@ -47,11 +47,19 @@ export const AuthController = {
 
   verifyOtp: async (req: Request, res: Response) => {
     const { email, otp } = req.body;
-    const user = await AuthService.verifySignupOtp(email, otp);
+    const user = (await AuthService.verifySignupOtp(email, otp)) as unknown as User;
+    
+    user.studentId = user.id;
+
+    const { refreshToken, accessToken } = generateTokens(user as User);
+
+    res.cookie("jwt_rf", refreshToken);
+
     res.status(201).json({
       success: true,
       message: "Email verified and account created successfully",
-      data: user,
+      token: accessToken,
+      user,
     });
   },
 

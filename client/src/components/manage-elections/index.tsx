@@ -79,8 +79,10 @@ export function ManageElections() {
                 <tr>
                   <th className="px-6 py-4 font-semibold">Election Title</th>
                   <th className="px-6 py-4 font-semibold">Academic Year</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 text-right font-semibold">
+                  <th className="px-6 py-4 text-center font-semibold">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-center font-semibold">
                     Actions
                   </th>
                 </tr>
@@ -114,14 +116,14 @@ export function ManageElections() {
                       <td className="px-6 py-4 text-muted-foreground">
                         {election.academicYear?.name || "Unbound"}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-center">
                         {election.isActive ? (
                           <Badge variant="default">Active Polling</Badge>
                         ) : (
                           <Badge variant="secondary">Standby</Badge>
                         )}
                       </td>
-                      <td className="space-x-2 px-6 py-4 text-right">
+                      <td className="flex items-center justify-center gap-2 px-6 py-4 text-center">
                         <Button
                           variant={election.isActive ? "outline" : "default"}
                           size="sm"

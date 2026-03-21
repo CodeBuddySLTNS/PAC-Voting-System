@@ -93,7 +93,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform overflow-hidden border-r border-primary/20 bg-primary text-primary-foreground transition-transform duration-300 ease-in-out lg:static lg:flex lg:translate-x-0 lg:flex-col dark:bg-black dark:text-foreground ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 transform flex-col overflow-hidden border-r border-primary/20 bg-primary text-primary-foreground transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 dark:bg-black dark:text-foreground ${
           isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
@@ -143,6 +143,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             );
           })}
         </div>
+
+        <p className="mb-2 text-center text-white">BSCS-4 Batch 2026-2027</p>
 
         <div className="relative z-10 border-t border-primary-foreground/10 p-4 dark:border-foreground/10">
           <Button

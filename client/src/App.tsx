@@ -18,11 +18,11 @@ import { Toaster } from "./components/ui/sonner";
 import { useQuery } from "@tanstack/react-query";
 import { coleAPI } from "./lib/utils";
 import { useEffect } from "react";
-import { Loader } from "lucide-react";
+import LoadingAnimation from "./components/loading-animation/loading";
 
 const RoleAccess = () => {
   const user = useMainStore((state) => state.user);
-  console.log(user);
+
   if (user?.adminId) {
     return <Navigate to="/dashboard" />;
   }
@@ -51,7 +51,7 @@ export function App() {
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
-        <Loader size={40} className="animate-spin" />
+        <LoadingAnimation />
       </div>
     );
   }

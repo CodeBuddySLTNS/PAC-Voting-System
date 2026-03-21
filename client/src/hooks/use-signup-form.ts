@@ -7,6 +7,7 @@ import { coleAPI } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
+import { useMainStore } from "@/store";
 
 export const signupSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -27,6 +28,8 @@ export type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>;
 
 export function useSignupForm() {
   const navigate = useNavigate();
+  const setToken = useMainStore((state) => state.setToken);
+  const setUser = useMainStore((state) => state.setUser);
   const [step, setStep] = useState<"credentials" | "otp">("credentials");
   const [emailForOtp, setEmailForOtp] = useState("");
 
@@ -67,14 +70,16 @@ export function useSignupForm() {
   });
 
   const verifyOtpMutation = useMutation<
-    unknown,
+    any,
     Error,
     { email: string; otp: string }
   >({
     mutationFn: coleAPI("/api/auth/signup/verify", "POST"),
-    onSuccess: () => {
+    onSuccess: (res: any) => {
+      setToken(res.token);
+      setUser(res.user);
       toast.success("Account created successfully!");
-      navigate("/login");
+      navigate("/", { replace: true });
     },
     onError: (error: unknown) => {
       if (isAxiosError(error)) {
