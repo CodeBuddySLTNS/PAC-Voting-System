@@ -14,6 +14,7 @@ import StudentDashboard from "./pages/student/student-dashboard";
 import ElectionBallotPage from "./pages/student/election-ballot";
 import { ManageElections } from "./components/manage-elections";
 import { ManageCandidates } from "./components/manage-candidates";
+import { ManageStudents } from "./components/manage-students";
 import { useMainStore } from "./store";
 import { Toaster } from "./components/ui/sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -89,6 +90,14 @@ export function App() {
               element={
                 <DashboardLayout>
                   <ManageCandidates />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/dashboard/students"
+              element={
+                <DashboardLayout>
+                  <ManageStudents />
                 </DashboardLayout>
               }
             />

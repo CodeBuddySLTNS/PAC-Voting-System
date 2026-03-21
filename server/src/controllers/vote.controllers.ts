@@ -16,7 +16,7 @@ export const VoteController = {
     const user = res.locals.user as User;
     if (!user.studentId) throw new CustomError("Only students can access this route", 403);
     
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     if (isNaN(id)) throw new CustomError("Invalid election ID", 400);
 
     const data = await VoteService.getBallot(id, user.studentId);
@@ -27,10 +27,10 @@ export const VoteController = {
     const user = res.locals.user as User;
     if (!user.studentId) throw new CustomError("Only students can access this route", 403);
     
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     if (isNaN(id)) throw new CustomError("Invalid election ID", 400);
 
     const data = await VoteService.submitVote(id, user.studentId, req.body);
-    res.status(201).json({ success: true, ...data });
+    res.status(201).json(data);
   }
 };
