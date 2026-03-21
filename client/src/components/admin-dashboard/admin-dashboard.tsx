@@ -59,19 +59,16 @@ export default function AdminDashboard() {
           title="Total Students"
           value="2,450"
           icon={<Users className="h-5 w-5" />}
-          trend={{ value: 12, label: "from last month", isPositive: true }}
         />
         <StatCard
           title="Active Elections"
           value="3"
           icon={<FileText className="h-5 w-5" />}
-          trend={{ value: 1, label: "new this week", isPositive: true }}
         />
         <StatCard
           title="Total Votes"
           value="12,389"
           icon={<CheckCircle className="h-5 w-5" />}
-          trend={{ value: 8, label: "increase", isPositive: true }}
         />
         <StatCard
           title="Pending Approvals"
@@ -79,7 +76,6 @@ export default function AdminDashboard() {
           icon={
             <Clock className="h-5 w-5 text-amber-500 dark:text-amber-400" />
           }
-          description="Requires attention"
         />
       </div>
 

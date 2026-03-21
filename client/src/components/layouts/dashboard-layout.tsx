@@ -177,7 +177,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 : location.pathname.split("/").pop()}
             </h1>
 
-            <h1 className="text-xl font-semibold tracking-tight capitalize sm:block">
+            <h1 className="text-xl font-semibold tracking-tight capitalize sm:hidden">
               PAC Voting System
             </h1>
           </div>

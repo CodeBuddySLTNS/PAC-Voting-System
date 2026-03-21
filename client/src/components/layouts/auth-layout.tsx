@@ -50,10 +50,19 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       </div>
 
       {/* Right side - Form */}
-      <div className="flex items-center justify-center p-8 lg:p-12">
-        <div className="mx-auto flex w-full max-w-[400px] flex-col justify-center space-y-6">
+      <div className="flex items-center justify-center p-6 sm:p-8 lg:p-12">
+        <div className="mx-auto flex w-full max-w-[360px] sm:max-w-[400px] flex-col justify-center space-y-6">
+          {/* Mobile Logo (Hidden on larger screens) */}
+          <div className="flex justify-center mb-2 lg:hidden">
+            <img
+              src="/images/pac-logo.svg"
+              alt="PAC Logo"
+              className="h-24 w-auto object-contain drop-shadow-md"
+            />
+          </div>
+
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{title}</h1>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
 

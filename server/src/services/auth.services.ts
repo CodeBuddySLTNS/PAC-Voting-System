@@ -43,6 +43,7 @@ export const AuthService = {
           </div>
           <p style="color: #888; margin-top: 16px;">This code expires in 5 minutes.</p>
           <p style="color: #888; margin-top: 16px;">If you did not request this code, please ignore this email.</p>
+          <p style="color: #888; margin-top: 16px;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
         </div>
       `,
       });
@@ -88,6 +89,8 @@ export const AuthService = {
             ${otp}
           </div>
           <p style="color: #888; margin-top: 16px;">This code expires in 5 minutes.</p>
+          <p style="color: #888; margin-top: 16px;">If you did not request this code, please ignore this email.</p>
+          <p style="color: #888; margin-top: 16px;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
         </div>
       `,
     });

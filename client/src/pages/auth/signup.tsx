@@ -5,7 +5,7 @@ export default function SignupPage() {
   return (
     <AuthLayout
       title="Create an account"
-      subtitle="Register below to join the PAC SGO platform"
+      subtitle="Register below to join the PAC Voting System"
     >
       <Signup />
     </AuthLayout>
