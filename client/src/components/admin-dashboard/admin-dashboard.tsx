@@ -1,4 +1,4 @@
-import { Users, FileText, CheckCircle, Clock } from "lucide-react";
+import { Users, FileText, UserX, UserCheck } from "lucide-react";
 import StatCard from "./stat-card";
 import {
   Card,
@@ -8,39 +8,66 @@ import {
   CardDescription,
 } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useDashboardStats } from "@/hooks/use-dashboard";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+const chartConfig = {
+  value: {
+    label: "Votes",
+    color: "hsl(var(--primary))",
+  },
+};
+
+const getRelativeTime = (dateStr: string) => {
+  const diffInMs = new Date().getTime() - new Date(dateStr).getTime();
+  const diffInMins = Math.floor(diffInMs / 60000);
+  if (diffInMins < 60)
+    return `${Math.max(1, diffInMins)} min${diffInMins !== 1 ? "s" : ""} ago`;
+  const diffInHours = Math.floor(diffInMins / 60);
+  if (diffInHours < 24)
+    return `${diffInHours} hour${diffInHours !== 1 ? "s" : ""} ago`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomXAxisTick = ({ x, y, payload }: any) => {
+  const isTruncated = payload.value.length > 15;
+  const displayText = isTruncated
+    ? payload.value.substring(0, 15) + "..."
+    : payload.value;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={16}
+        textAnchor="middle"
+        className="fill-muted-foreground text-[10px]"
+      >
+        {displayText}
+        {isTruncated && <title>{payload.value}</title>}
+      </text>
+    </g>
+  );
+};
 
 export default function AdminDashboard() {
-  // Mock data for the UI
-  const recentActivities = [
-    {
-      id: 1,
-      action: "Student registered",
-      user: "John Doe",
-      time: "2 hours ago",
-      avatar: "J",
-    },
-    {
-      id: 2,
-      action: "Election created",
-      user: "Admin",
-      time: "5 hours ago",
-      avatar: "A",
-    },
-    {
-      id: 3,
-      action: "Vote casted",
-      user: "Anonymous",
-      time: "1 day ago",
-      avatar: "?",
-    },
-    {
-      id: 4,
-      action: "Candidate updated",
-      user: "Admin",
-      time: "2 days ago",
-      avatar: "A",
-    },
-  ];
+  const { data: stats, isLoading } = useDashboardStats();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[400px] w-full animate-pulse items-center justify-center">
+        <p className="text-zinc-500">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
 
   return (
     <div className="animate-in space-y-8 duration-500 fade-in slide-in-from-bottom-4">
@@ -57,25 +84,25 @@ export default function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Students"
-          value="2,450"
+          value={stats.totalStudents.toLocaleString()}
           icon={<Users className="h-5 w-5" />}
         />
         <StatCard
           title="Active Elections"
-          value="3"
+          value={stats.activeElections.toLocaleString()}
           icon={<FileText className="h-5 w-5" />}
         />
         <StatCard
-          title="Total Votes"
-          value="12,389"
-          icon={<CheckCircle className="h-5 w-5" />}
+          title="Active Voters"
+          value={stats.activeStudents.toLocaleString()}
+          icon={
+            <UserCheck className="h-5 w-5 text-green-500 dark:text-green-400" />
+          }
         />
         <StatCard
-          title="Pending Approvals"
-          value="14"
-          icon={
-            <Clock className="h-5 w-5 text-amber-500 dark:text-amber-400" />
-          }
+          title="Inactive Voters"
+          value={stats.inactiveStudents.toLocaleString()}
+          icon={<UserX className="h-5 w-5 text-red-500 dark:text-red-400" />}
         />
       </div>
 
@@ -85,13 +112,47 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle>Election Engagement</CardTitle>
             <CardDescription>
-              Voting turnout for the current academic year.
+              Total distinct votes cast per recent election.
             </CardDescription>
           </CardHeader>
-          <CardContent className="m-6 mt-0 flex h-[300px] items-center justify-center rounded-xl border border-dashed border-zinc-100 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/20">
-            <p className="text-sm font-medium text-zinc-500">
-              Chart visualization will appear here.
-            </p>
+          <CardContent className="m-6 mt-0 flex h-[300px] items-center justify-center rounded-xl border border-dashed border-zinc-100 bg-zinc-50 px-4 pt-6 dark:border-zinc-800 dark:bg-zinc-900/20">
+            {stats.electionEngagement.length > 0 ? (
+              <ChartContainer
+                config={chartConfig}
+                className="mx-auto max-h-[250px] w-full"
+              >
+                <BarChart data={stats.electionEngagement}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={10}
+                    tick={<CustomXAxisTick />}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={10}
+                    allowDecimals={false}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent />}
+                  />
+                  <Bar
+                    dataKey="value"
+                    fill="var(--color-value)"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={60}
+                  />
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <p className="text-sm font-medium text-zinc-500">
+                No election data available.
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -99,34 +160,40 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
-              Latest actions taken within the system.
+              Latest votes casted within the system.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-center gap-4">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage
-                      src={`https://api.dicebear.com/7.x/notionists/svg?seed=${activity.user}`}
-                    />
-                    <AvatarFallback className="bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                      {activity.avatar}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-1 flex-col space-y-1">
-                    <p className="text-sm leading-none font-medium">
-                      {activity.user}
-                    </p>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      {activity.action}
-                    </p>
+              {stats.recentActivity.length > 0 ? (
+                stats.recentActivity.map((activity) => (
+                  <div key={activity.id} className="flex items-center gap-4">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage
+                        src={`https://api.dicebear.com/7.x/notionists/svg?seed=${activity.user}`}
+                      />
+                      <AvatarFallback className="bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                        {activity.avatar}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-1 flex-col space-y-1">
+                      <p className="text-sm leading-none font-medium">
+                        {activity.user}
+                      </p>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                        {activity.action}
+                      </p>
+                    </div>
+                    <div className="text-xs whitespace-nowrap text-zinc-400">
+                      {getRelativeTime(activity.time)}
+                    </div>
                   </div>
-                  <div className="text-xs whitespace-nowrap text-zinc-400">
-                    {activity.time}
-                  </div>
+                ))
+              ) : (
+                <div className="py-4 text-center text-sm text-zinc-500">
+                  No recent activity found.
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>

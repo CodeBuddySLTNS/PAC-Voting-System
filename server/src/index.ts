@@ -10,6 +10,7 @@ import electionRoutes from "./routes/election.routes";
 import candidateRoutes from "./routes/candidate.routes";
 import voteRoutes from "./routes/vote.routes";
 import userRoutes from "./routes/user.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/elections", electionRoutes);
 app.use("/api/candidates", candidateRoutes);
 app.use("/api/votes", voteRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // error handler
 app.use(errorHandler);
