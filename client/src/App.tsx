@@ -5,22 +5,23 @@ import {
   Routes,
 } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
-import LoginPage from "@/pages/auth/login";
-import SignupPage from "@/pages/auth/signup";
-import ProtectedRoute from "./components/protected-route/protected-route";
-import DashboardLayout from "./components/layouts/dashboard-layout";
-import AdminDashboard from "./components/admin-dashboard/admin-dashboard";
-import StudentDashboard from "./pages/student/student-dashboard";
-import ElectionBallotPage from "./pages/student/election-ballot";
-import { ManageElections } from "./components/manage-elections";
-import { ManageCandidates } from "./components/manage-candidates";
-import { ManageStudents } from "./components/manage-students";
-import ElectionResults from "./pages/admin/election-results";
 import { useMainStore } from "./store";
 import { Toaster } from "./components/ui/sonner";
 import { useQuery } from "@tanstack/react-query";
 import { coleAPI } from "./lib/utils";
 import { useEffect } from "react";
+
+import LoginPage from "@/pages/auth/login";
+import SignupPage from "@/pages/auth/signup";
+import ProtectedRoute from "./components/protected-route/protected-route";
+import DashboardLayout from "./components/layouts/dashboard-layout";
+import AdminDashboard from "./pages/admin/admin-dashboard";
+import StudentDashboard from "./pages/student/student-dashboard";
+import ManageElections from "./pages/admin/manage-elections";
+import ManageCandidates from "./pages/admin/manage-candidates";
+import ManageStudents from "./pages/admin/manage-students";
+import ElectionBallotForm from "./pages/student/election-ballot";
+import ElectionResults from "./pages/admin/election-results";
 import LoadingAnimation from "./components/loading-animation/loading";
 
 const RoleAccess = () => {
@@ -122,7 +123,7 @@ export function App() {
               path="/student/election/:id/vote"
               element={
                 <DashboardLayout>
-                  <ElectionBallotPage />
+                  <ElectionBallotForm />
                 </DashboardLayout>
               }
             />

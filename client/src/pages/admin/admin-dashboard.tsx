@@ -1,13 +1,17 @@
 import { Users, FileText, UserX, UserCheck } from "lucide-react";
-import StatCard from "./stat-card";
+import StatCard from "./components/stat-card";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardDescription,
-} from "../ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+} from "../../components/ui/card";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../components/ui/avatar";
 import { useDashboardStats } from "@/hooks/use-dashboard";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
@@ -15,7 +19,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import LoadingAnimation from "../loading-animation/loading";
+import LoadingAnimation from "../../components/loading-animation/loading";
 const chartConfig = {
   value: {
     label: "Turnout",

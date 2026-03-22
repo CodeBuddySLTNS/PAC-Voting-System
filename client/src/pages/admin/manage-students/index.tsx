@@ -9,7 +9,7 @@ import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
-export function ManageStudents() {
+export default function ManageStudents() {
   const { data: students, isLoading } = useStudents();
   const toggleStatusMutation = useToggleStudentStatus();
 

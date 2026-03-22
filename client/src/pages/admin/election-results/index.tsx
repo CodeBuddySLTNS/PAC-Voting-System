@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Verified, CheckCircle2, ArrowLeft } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import LoadingAnimation from "@/components/loading-animation/loading";
 
 export default function ElectionResults() {
   const { id } = useParams();
@@ -15,7 +16,7 @@ export default function ElectionResults() {
   if (isLoading) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <LoadingAnimation />
       </div>
     );
   }
