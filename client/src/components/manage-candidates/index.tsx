@@ -6,6 +6,7 @@ import * as z from "zod";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -42,6 +43,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LoadingAnimation from "../loading-animation/loading";
 
 const schema = z.object({
   positionId: z.number().min(1, "Position is required"),
@@ -206,7 +208,9 @@ export function ManageCandidates() {
 
   if (electionsLoading) {
     return (
-      <div className="animate-pulse py-20 text-center">Loading setup...</div>
+      <div className="flex h-[450px] w-full items-center justify-center">
+        <LoadingAnimation />
+      </div>
     );
   }
 
@@ -271,19 +275,27 @@ export function ManageCandidates() {
                     <p className="text-xs font-semibold text-muted-foreground uppercase">
                       New Position Definition
                     </p>
-                    <Input
-                      placeholder="Title (e.g. President)"
-                      value={newPosition.title}
-                      onChange={(e) =>
-                        setNewPosition({
-                          ...newPosition,
-                          title: e.target.value,
-                        })
-                      }
-                      disabled={createPositionMutation.isPending}
-                    />
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">
+                        Title
+                      </Label>
+                      <Input
+                        placeholder="Title (e.g. President)"
+                        value={newPosition.title}
+                        onChange={(e) =>
+                          setNewPosition({
+                            ...newPosition,
+                            title: e.target.value,
+                          })
+                        }
+                        disabled={createPositionMutation.isPending}
+                      />
+                    </div>
+                    <div className="flex items-end gap-3">
+                      <div className="flex-1 space-y-1.5">
+                        <Label className="text-xs text-muted-foreground">
+                          Max Votes
+                        </Label>
                         <Input
                           type="number"
                           min={1}
@@ -298,7 +310,7 @@ export function ManageCandidates() {
                           disabled={createPositionMutation.isPending}
                         />
                       </div>
-                      <div className="flex items-center gap-2 pr-2">
+                      <div className="mb-1.5 flex items-center gap-2 pr-2">
                         <Switch
                           checked={newPosition.isGlobal}
                           onCheckedChange={(val) =>
@@ -517,7 +529,7 @@ export function ManageCandidates() {
         </Card>
 
         {/* RIGHT SIDE: CANDIDATES LIST */}
-        <Card className="flex h-max flex-col border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+        <Card className="flex h-max flex-col gap-0 border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
           <CardHeader className="border-b border-border/50 pb-3">
             <CardTitle className="text-lg">Active Roster</CardTitle>
             <CardDescription>

@@ -15,9 +15,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import LoadingAnimation from "../loading-animation/loading";
 const chartConfig = {
   value: {
-    label: "Votes",
+    label: "Turnout",
     color: "hsl(var(--primary))",
   },
 };
@@ -61,8 +62,8 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[400px] w-full animate-pulse items-center justify-center">
-        <p className="text-zinc-500">Loading dashboard...</p>
+      <div className="flex h-[450px] w-full items-center justify-center">
+        <LoadingAnimation />
       </div>
     );
   }

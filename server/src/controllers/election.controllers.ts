@@ -37,4 +37,15 @@ export const ElectionController = {
       message: "Election deleted successfully",
     });
   },
+
+  getResults: async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id as string);
+    if (isNaN(id)) throw new Error("Invalid election ID");
+
+    const results = await ElectionService.getElectionResults(id);
+    res.json({
+      success: true,
+      data: results,
+    });
+  },
 };

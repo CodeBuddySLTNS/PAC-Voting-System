@@ -107,4 +107,71 @@ export const ElectionService = {
 
     return true;
   },
+
+  getElectionResults: async (id: number) => {
+    const election = await prisma.election.findUnique({
+      where: { id },
+      include: { academicYear: true }
+    });
+
+    if (!election) {
+      throw new CustomError("Election not found", 404);
+    }
+
+    const candidates = await prisma.candidate.findMany({
+      where: { electionId: id },
+      include: {
+        position: true,
+        _count: { select: { votes: true } }
+      }
+    });
+
+    const positionsMap = new Map<number, any>();
+    candidates.forEach((c) => {
+      if (!positionsMap.has(c.positionId)) {
+        positionsMap.set(c.positionId, {
+          positionId: c.positionId,
+          title: c.position.title,
+          maxVotes: c.position.maxVotes,
+          candidates: []
+        });
+      }
+      positionsMap.get(c.positionId).candidates.push({
+        id: c.candidateId,
+        name: c.name,
+        // If candidate relies on student for name: (wait... let's check schema. `name` is String?. `studentId` is Int?)
+        // The earlier ballot implementation uses `candidate.name || candidate.student.name`. We will format this safely.
+        partyList: c.partyList,
+        imageUrl: c.imageUrl,
+        voteCount: c._count.votes
+      });
+    });
+
+    const results = Array.from(positionsMap.values()).map(pos => {
+      pos.candidates.sort((a: any, b: any) => b.voteCount - a.voteCount);
+      return pos;
+    });
+
+    const totalVotes = await prisma.vote.count({ where: { electionId: id } });
+    
+    const distinctVoters = await prisma.vote.findMany({
+      where: { electionId: id },
+      distinct: ['studentId'],
+      select: { studentId: true }
+    });
+
+    return {
+      election: {
+        id: election.id,
+        name: election.name,
+        academicYear: election.academicYear.name,
+        isActive: election.isActive,
+      },
+      stats: {
+        totalVotes,
+        totalVoters: distinctVoters.length
+      },
+      results
+    };
+  }
 };

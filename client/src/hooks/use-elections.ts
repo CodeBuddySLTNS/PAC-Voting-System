@@ -84,3 +84,39 @@ export function useDeleteElection() {
     },
   });
 }
+
+export interface ElectionResults {
+  election: {
+    id: number;
+    name: string;
+    academicYear: string;
+    isActive: boolean;
+  };
+  stats: {
+    totalVotes: number;
+    totalVoters: number;
+  };
+  results: {
+    positionId: number;
+    title: string;
+    maxVotes: number;
+    candidates: {
+      id: number;
+      name: string | null;
+      partyList: string | null;
+      imageUrl: string | null;
+      voteCount: number;
+    }[];
+  }[];
+}
+
+export function useElectionResults(id: number) {
+  return useQuery({
+    queryKey: ["election-results", id],
+    queryFn: async () => {
+      const response = await coleAPI(`/api/elections/${id}/results`, "GET")({});
+      return response.data as ElectionResults;
+    },
+    enabled: !!id,
+  });
+}

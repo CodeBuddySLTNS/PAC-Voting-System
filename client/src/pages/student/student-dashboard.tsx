@@ -1,8 +1,9 @@
 import { useMainStore } from "../../store";
 import ElectionCard from "./components/election-card";
 import { Card, CardContent } from "../../components/ui/card";
-import { CheckCircle2, Ticket, AlertCircle } from "lucide-react";
+import { Ticket, AlertCircle, Camera } from "lucide-react";
 import { useStudentElections } from "@/hooks/use-voting";
+import { toast } from "sonner";
 
 export default function StudentDashboard() {
   const user = useMainStore((state) => state.user);
@@ -87,13 +88,26 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="group relative overflow-hidden border-none bg-zinc-900 text-white shadow-sm dark:bg-zinc-900/40">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 opacity-0 transition-opacity group-hover:opacity-100" />
-            <CardContent className="relative z-10 flex flex-col items-center p-6 text-center">
-              <CheckCircle2 className="mb-3 h-10 w-10 text-emerald-400" />
-              <h3 className="mb-1 text-lg font-semibold">Identity Verified</h3>
-              <p className="text-xs text-zinc-400">
-                Your student ID is verified for the current academic year.
+          {/* Update Profile Picture UI */}
+          <Card className="group relative overflow-hidden border-none shadow-sm dark:bg-zinc-900/40">
+            <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 to-purple-500/5 opacity-0 transition-opacity group-hover:opacity-100" />
+            <CardContent className="relative z-10 flex flex-col items-center justify-center p-6 text-center">
+              <div className="relative mb-4">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100 text-3xl font-bold text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+                  {user?.firstName?.charAt(0) || "U"}
+                </div>
+                <button
+                  className="absolute right-0 bottom-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform hover:scale-105"
+                  onClick={() =>
+                    toast.info("Profile picture upload coming soon!")
+                  }
+                >
+                  <Camera className="h-4 w-4" />
+                </button>
+              </div>
+              <h3 className="text-md mb-1 font-semibold">Profile Picture</h3>
+              <p className="px-2 text-xs text-zinc-500 dark:text-zinc-400">
+                Update your photo to personalize your account.
               </p>
             </CardContent>
           </Card>

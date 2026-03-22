@@ -7,7 +7,7 @@ import {
 } from "@/hooks/use-elections";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Users } from "lucide-react";
+import { Plus, Trash2, Users, BarChart2 } from "lucide-react";
 import { CreateElectionDialog } from "./create-election-dialog";
 import { useNavigate } from "react-router-dom";
 import {
@@ -143,6 +143,15 @@ export function ManageElections() {
                         >
                           <Users className="h-4 w-4" />
                           Candidates
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="cursor-pointer gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
+                          onClick={() => navigate(`/dashboard/elections/${election.id}/results`)}
+                        >
+                          <BarChart2 className="h-4 w-4" />
+                          Results
                         </Button>
                         <Button
                           variant="destructive"
