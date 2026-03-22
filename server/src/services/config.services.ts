@@ -1,4 +1,6 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { prisma } from "../lib/prisma";
+import { CustomError } from "../lib/utils";
 
 export const ConfigService = {
   getDepartments: async () => {
@@ -29,9 +31,19 @@ export const ConfigService = {
   },
 
   createAcademicYear: async (name: string) => {
-    return prisma.academicYear.create({
-      data: { name },
-    });
+    try {
+      return await prisma.academicYear.create({
+        data: { name },
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new CustomError("Academic year already exists", 409);
+      }
+      throw error;
+    }
   },
 
   getPositions: async () => {
@@ -40,7 +52,11 @@ export const ConfigService = {
     });
   },
 
-  createPosition: async (data: { title: string; maxVotes: number; isGlobal: boolean }) => {
+  createPosition: async (data: {
+    title: string;
+    maxVotes: number;
+    isGlobal: boolean;
+  }) => {
     return prisma.position.create({
       data,
     });

@@ -122,6 +122,7 @@ export const ElectionService = {
       where: { electionId: id },
       include: {
         position: true,
+        student: true,
         _count: { select: { votes: true } }
       }
     });
@@ -138,9 +139,9 @@ export const ElectionService = {
       }
       positionsMap.get(c.positionId).candidates.push({
         id: c.candidateId,
-        name: c.name,
-        // If candidate relies on student for name: (wait... let's check schema. `name` is String?. `studentId` is Int?)
-        // The earlier ballot implementation uses `candidate.name || candidate.student.name`. We will format this safely.
+        name: c.student 
+          ? `${c.student.firstName} ${c.student.lastName}`
+          : c.name || "Unknown Candidate",
         partyList: c.partyList,
         imageUrl: c.imageUrl,
         voteCount: c._count.votes

@@ -40,7 +40,7 @@ export default function ElectionCard({
   };
 
   return (
-    <Card className="group overflow-hidden border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:border-indigo-700">
+    <Card className="group gap-0 overflow-hidden border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:border-indigo-700">
       <CardHeader className="pb-4">
         <div className="mb-2 flex items-start justify-between">
           <div
@@ -54,7 +54,7 @@ export default function ElectionCard({
             </div>
           )}
         </div>
-        <CardTitle className="line-clamp-2 text-xl transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+        <CardTitle className="line-clamp-2 text-xl transition-colors">
           {title}
         </CardTitle>
       </CardHeader>
@@ -69,33 +69,42 @@ export default function ElectionCard({
         </div>
       </CardContent>
 
-      <CardFooter className="justify-end pt-0">
-        {status === "active" ? (
-          <Button
-            asChild={!voted}
-            className="w-full bg-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 sm:w-auto"
-            disabled={voted}
-            variant={voted ? "secondary" : "default"}
-          >
-            {voted ? (
-              "View Results"
-            ) : (
+      <CardFooter className="flex flex-wrap justify-end gap-2 pt-0">
+        {status === "upcoming" && (
+          <Button variant="outline" className="w-full sm:w-auto" disabled>
+            Not Started
+          </Button>
+        )}
+
+        {status === "active" && !voted && (
+          <>
+            <Button variant="outline" className="w-full sm:w-auto" asChild>
+              <Link to={`/student/election/${id}/results`}>
+                Partial Results
+              </Link>
+            </Button>
+            <Button asChild className="w-full sm:w-auto">
               <Link to={`/student/election/${id}/vote`}>
                 Cast Vote
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
-            )}
-          </Button>
-        ) : status === "upcoming" ? (
-          <Button variant="outline" className="w-full sm:w-auto" disabled>
-            Not Started
-          </Button>
-        ) : (
+            </Button>
+          </>
+        )}
+
+        {status === "active" && voted && (
           <Button
-            variant="ghost"
-            className="w-full text-indigo-600 sm:w-auto dark:text-indigo-400"
+            variant="secondary"
+            className="w-full border border-zinc-200 group-hover:text-indigo-600 sm:w-auto dark:group-hover:text-indigo-400"
+            asChild
           >
-            View Results
+            <Link to={`/student/election/${id}/results`}>Partial Results</Link>
+          </Button>
+        )}
+
+        {status === "ended" && (
+          <Button variant="default" className="w-full sm:w-auto" asChild>
+            <Link to={`/student/election/${id}/results`}>Official Results</Link>
           </Button>
         )}
       </CardFooter>

@@ -127,6 +127,14 @@ export function App() {
                 </DashboardLayout>
               }
             />
+            <Route
+              path="/student/election/:id/results"
+              element={
+                <DashboardLayout>
+                  <ElectionResults />
+                </DashboardLayout>
+              }
+            />
           </Route>
         </Routes>
       </Router>

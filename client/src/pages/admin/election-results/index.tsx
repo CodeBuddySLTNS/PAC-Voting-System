@@ -2,14 +2,17 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useElectionResults } from "@/hooks/use-elections";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Verified, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Users, Verified, CheckCircle2, ArrowLeft, Info } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import LoadingAnimation from "@/components/loading-animation/loading";
+import { WinnersDialog } from "./components/winners-dialog";
+import { useMainStore } from "@/store";
 
 export default function ElectionResults() {
   const { id } = useParams();
   const electionId = Number(id);
   const navigate = useNavigate();
+  const user = useMainStore((state) => state.user);
 
   const { data, isLoading, error } = useElectionResults(electionId);
 
@@ -28,7 +31,9 @@ export default function ElectionResults() {
           Failed to load election results.
         </p>
         <Button asChild variant="outline">
-          <Link to="/dashboard/elections">Go Back</Link>
+          <Link to={user?.adminId ? "/dashboard/elections" : "/student"}>
+            Go Back
+          </Link>
         </Button>
       </div>
     );
@@ -38,7 +43,7 @@ export default function ElectionResults() {
 
   return (
     <div className="animate-in space-y-6 duration-500 fade-in slide-in-from-bottom-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 print:hidden">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">
             {election.name} Results
@@ -50,13 +55,35 @@ export default function ElectionResults() {
         <div className="mb-2 flex items-center gap-2">
           <Button
             variant="ghost"
-            onClick={() => navigate("/dashboard/elections")}
+            onClick={() => navigate(user?.adminId ? "/dashboard/elections" : "/student")}
             className="-ml-3 cursor-pointer gap-2 text-muted-foreground"
           >
-            <ArrowLeft className="h-5 w-5" /> Back to Elections
+            <ArrowLeft className="h-5 w-5" /> Back to {user?.adminId ? "Elections" : "Dashboard"}
           </Button>
+
+          {user?.adminId && (
+            <WinnersDialog
+              results={results}
+              electionName={election.name}
+              isElectionActive={election.isActive}
+            />
+          )}
         </div>
       </div>
+
+      {election.isActive && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-amber-600 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-500">
+          <Info className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="text-sm">
+            <p className="font-semibold">Live Election Ongoing</p>
+            <p className="mt-1 leading-snug opacity-90">
+              The results displayed are partial and subject to change until the
+              election concludes. Official winners cannot be determined until
+              voting closes.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="gap-0 border-none shadow-sm shadow-zinc-200/50 dark:bg-zinc-900/40 dark:shadow-none">
@@ -130,7 +157,7 @@ export default function ElectionResults() {
                       No candidates registered.
                     </div>
                   )}
-                  {position.candidates.map((candidate, index) => {
+                  {position.candidates.map((candidate) => {
                     const progressValue =
                       topCandidateVotes === 0
                         ? 0
@@ -141,10 +168,15 @@ export default function ElectionResults() {
                         : Math.round(
                             (candidate.voteCount / totalVotesForPosition) * 100
                           );
+                    const thresholdIndex = Math.min(
+                      position.maxVotes - 1,
+                      position.candidates.length - 1
+                    );
+                    const winningThreshold =
+                      position.candidates[thresholdIndex]?.voteCount || 0;
                     const isWinner =
-                      index < position.maxVotes &&
                       candidate.voteCount > 0 &&
-                      candidate.voteCount === topCandidateVotes;
+                      candidate.voteCount >= winningThreshold;
 
                     return (
                       <div
