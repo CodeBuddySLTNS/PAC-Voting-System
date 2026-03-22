@@ -28,7 +28,7 @@ export function useStudents() {
     queryKey: ["students"],
     queryFn: async () => {
       const fn = coleAPI("/api/users/students");
-      const res = await fn();
+      const res = await fn({});
       return res.students as Student[];
     },
   });
