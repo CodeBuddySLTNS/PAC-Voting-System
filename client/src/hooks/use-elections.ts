@@ -10,6 +10,8 @@ export interface Election {
   academicYearId: number;
   name: string;
   isActive: boolean;
+  startTime: string;
+  endTime: string;
   academicYear?: AcademicYear;
 }
 
@@ -25,17 +27,24 @@ export function useElections() {
 
 export function useCreateElection() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: { name: string; academicYearId: number; isActive: boolean }) =>
-      coleAPI("/api/elections", "POST")(data),
+    mutationFn: (data: {
+      name: string;
+      academicYearId: number;
+      isActive: boolean;
+      startTime: string;
+      endTime: string;
+    }) => coleAPI("/api/elections", "POST")(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["elections"] });
       toast.success("Election created successfully");
     },
     onError: (error: unknown) => {
       if (isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to create election");
+        toast.error(
+          error.response?.data?.message || "Failed to create election"
+        );
       } else {
         toast.error("Failed to create election");
       }
@@ -45,12 +54,25 @@ export function useCreateElection() {
 
 export function useUpdateElection() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: { id: number; name?: string; isActive?: boolean }) =>
-      coleAPI(`/api/elections/${data.id}`, "PATCH")({
+    mutationFn: (data: {
+      id: number;
+      name?: string;
+      isActive?: boolean;
+      academicYearId?: number;
+      startTime?: string;
+      endTime?: string;
+    }) =>
+      coleAPI(
+        `/api/elections/${data.id}`,
+        "PATCH"
+      )({
         name: data.name,
         isActive: data.isActive,
+        academicYearId: data.academicYearId,
+        startTime: data.startTime,
+        endTime: data.endTime,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["elections"] });
@@ -58,7 +80,9 @@ export function useUpdateElection() {
     },
     onError: (error: unknown) => {
       if (isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to update election");
+        toast.error(
+          error.response?.data?.message || "Failed to update election"
+        );
       } else {
         toast.error("Failed to update election");
       }
@@ -68,7 +92,7 @@ export function useUpdateElection() {
 
 export function useDeleteElection() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: number) => coleAPI(`/api/elections/${id}`, "DELETE")({}),
     onSuccess: () => {
@@ -77,7 +101,9 @@ export function useDeleteElection() {
     },
     onError: (error: unknown) => {
       if (isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to delete election");
+        toast.error(
+          error.response?.data?.message || "Failed to delete election"
+        );
       } else {
         toast.error("Failed to delete election");
       }
@@ -91,6 +117,8 @@ export interface ElectionResults {
     name: string;
     academicYear: string;
     isActive: boolean;
+    startTime: string;
+    endTime: string;
   };
   stats: {
     totalVotes: number;

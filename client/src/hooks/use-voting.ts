@@ -7,10 +7,12 @@ import { useNavigate } from "react-router-dom";
 export interface StudentElection {
   id: number;
   title: string;
-  status: "active" | "ended";
+  status: "active" | "upcoming" | "scheduled" | "ended";
   isActive: boolean;
   academicYearId: number;
   voted: boolean;
+  startTime: string;
+  endTime: string;
   academicYear?: { id: number; name: string };
 }
 

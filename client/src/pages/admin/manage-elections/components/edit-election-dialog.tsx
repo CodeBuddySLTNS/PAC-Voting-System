@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,9 +25,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useCreateElection } from "@/hooks/use-elections";
+import { useUpdateElection, type Election } from "@/hooks/use-elections";
 import { useAcademicYears, useCreateAcademicYear } from "@/hooks/use-config";
 import { Plus } from "lucide-react";
+import { toLocalDatetime } from "@/lib/utils";
 
 const schema = z.object({
   name: z.string().min(1, "Election name is required"),
@@ -40,12 +41,12 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 interface Props {
-  open: boolean;
+  election: Election | null;
   onOpenChange: (open: boolean) => void;
 }
 
-export function CreateElectionDialog({ open, onOpenChange }: Props) {
-  const createMutation = useCreateElection();
+export function EditElectionDialog({ election, onOpenChange }: Props) {
+  const updateMutation = useUpdateElection();
   const academicYearsQuery = useAcademicYears();
   const createYearMutation = useCreateAcademicYear();
 
@@ -63,16 +64,30 @@ export function CreateElectionDialog({ open, onOpenChange }: Props) {
     },
   });
 
+  // Reset form with database values whenever election prop updates
+  useEffect(() => {
+    if (election) {
+      form.reset({
+        name: election.name,
+        academicYearId: election.academicYearId,
+        isActive: election.isActive,
+        startTime: election.startTime ? toLocalDatetime(new Date(election.startTime)) : "",
+        endTime: election.endTime ? toLocalDatetime(new Date(election.endTime)) : "",
+      });
+    }
+  }, [election, form]);
+
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    createMutation.mutate(
-      {
+    if (!election) return;
+    updateMutation.mutate(
+      { 
+        id: election.id, 
         ...data,
         startTime: new Date(data.startTime).toISOString(),
-        endTime: new Date(data.endTime).toISOString(),
+        endTime: new Date(data.endTime).toISOString()
       },
       {
         onSuccess: () => {
-          form.reset();
           onOpenChange(false);
         },
       }
@@ -93,18 +108,22 @@ export function CreateElectionDialog({ open, onOpenChange }: Props) {
     );
   };
 
+  if (!election) return null;
+
+  const isOpen = !!election;
+
   return (
     <Dialog
-      open={open}
+      open={isOpen}
       onOpenChange={(val) => {
-        if (!createMutation.isPending) onOpenChange(val);
+        if (!updateMutation.isPending) onOpenChange(val);
       }}
     >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create Election</DialogTitle>
+          <DialogTitle>Edit Election</DialogTitle>
           <DialogDescription>
-            Bind an election cycle to an Academic Year grouping.
+            Modify election configuration and timing bounds.
           </DialogDescription>
         </DialogHeader>
 
@@ -145,7 +164,7 @@ export function CreateElectionDialog({ open, onOpenChange }: Props) {
                         onValueChange={(val) => field.onChange(Number(val))}
                         value={field.value ? String(field.value) : undefined}
                         disabled={
-                          createMutation.isPending ||
+                          updateMutation.isPending ||
                           academicYearsQuery.isLoading
                         }
                       >
@@ -191,7 +210,7 @@ export function CreateElectionDialog({ open, onOpenChange }: Props) {
                 id="name"
                 placeholder="Ex. SGO Election"
                 {...form.register("name")}
-                disabled={createMutation.isPending}
+                disabled={updateMutation.isPending}
                 data-invalid={!!form.formState.errors.name}
               />
               <FieldError errors={[form.formState.errors.name]} />
@@ -204,7 +223,7 @@ export function CreateElectionDialog({ open, onOpenChange }: Props) {
                   id="startTime"
                   type="datetime-local"
                   {...form.register("startTime")}
-                  disabled={createMutation.isPending}
+                  disabled={updateMutation.isPending}
                   data-invalid={!!form.formState.errors.startTime}
                 />
                 <FieldError errors={[form.formState.errors.startTime]} />
@@ -216,7 +235,7 @@ export function CreateElectionDialog({ open, onOpenChange }: Props) {
                   id="endTime"
                   type="datetime-local"
                   {...form.register("endTime")}
-                  disabled={createMutation.isPending}
+                  disabled={updateMutation.isPending}
                   data-invalid={!!form.formState.errors.endTime}
                 />
                 <FieldError errors={[form.formState.errors.endTime]} />
@@ -239,7 +258,7 @@ export function CreateElectionDialog({ open, onOpenChange }: Props) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={createMutation.isPending}
+                      disabled={updateMutation.isPending}
                       aria-label="Set active now"
                     />
                   )}
@@ -254,18 +273,16 @@ export function CreateElectionDialog({ open, onOpenChange }: Props) {
               variant="outline"
               onClick={() => onOpenChange(false)}
               className="cursor-pointer"
-              disabled={createMutation.isPending}
+              disabled={updateMutation.isPending}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={createMutation.isPending || isAddingYear}
+              disabled={updateMutation.isPending || isAddingYear}
               className="cursor-pointer"
             >
-              {createMutation.isPending
-                ? "Starting Setup..."
-                : "Initialize Election"}
+              {updateMutation.isPending ? "Applying Changes..." : "Save Changes"}
             </Button>
           </div>
         </form>

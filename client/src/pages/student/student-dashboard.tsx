@@ -4,6 +4,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Ticket, AlertCircle, Camera } from "lucide-react";
 import { useStudentElections } from "@/hooks/use-voting";
 import { toast } from "sonner";
+import LoadingAnimation from "@/components/loading-animation/loading";
 
 export default function StudentDashboard() {
   const user = useMainStore((state) => state.user);
@@ -12,10 +13,7 @@ export default function StudentDashboard() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-sm font-medium text-zinc-500">
-          Loading elections...
-        </p>
+        <LoadingAnimation />
       </div>
     );
   }
@@ -125,7 +123,14 @@ export default function StudentDashboard() {
             {elections?.length === 0 && (
               <p className="text-sm text-zinc-500">No elections found.</p>
             )}
-            {elections?.map((election) => (
+            {elections
+              ?.slice()
+              .sort((a, b) => {
+                // active elections first, then by newest id
+                if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
+                return b.id - a.id;
+              })
+              .map((election) => (
               <ElectionCard
                 key={election.id}
                 id={election.id}
@@ -133,6 +138,8 @@ export default function StudentDashboard() {
                 academicYear={election.academicYear?.name || "Unknown"}
                 status={election.status}
                 voted={election.voted}
+                startTime={election.startTime}
+                endTime={election.endTime}
               />
             ))}
           </div>

@@ -71,7 +71,7 @@ export default function ElectionResults() {
         </div>
       </div>
 
-      {election.isActive && (
+      {election.isActive && new Date(election.endTime) > new Date() && (
         <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-amber-600 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-500">
           <Info className="mt-0.5 h-5 w-5 shrink-0" />
           <div className="text-sm">

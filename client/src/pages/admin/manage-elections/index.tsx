@@ -7,9 +7,11 @@ import {
 } from "@/hooks/use-elections";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Users, BarChart2 } from "lucide-react";
+import { Plus, Trash2, Users, BarChart2, Edit } from "lucide-react";
 import { CreateElectionDialog } from "./components/create-election-dialog";
+import { EditElectionDialog } from "./components/edit-election-dialog";
 import { useNavigate } from "react-router-dom";
+import { formatDateTime } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,10 +45,21 @@ export default function ManageElections() {
   const navigate = useNavigate();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingElection, setEditingElection] = useState<Election | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const toggleActive = (id: number, currentStatus: boolean) => {
-    updateMutation.mutate({ id, isActive: !currentStatus });
+  const toggleActive = (
+    id: number,
+    currentStatus: boolean,
+    name: string,
+    academicYearId: number
+  ) => {
+    updateMutation.mutate({
+      id,
+      isActive: !currentStatus,
+      name,
+      academicYearId,
+    });
   };
 
   const openCandidates = (id: number) => {
@@ -79,6 +92,7 @@ export default function ManageElections() {
                 <tr>
                   <th className="px-6 py-4 font-semibold">Election Title</th>
                   <th className="px-6 py-4 font-semibold">Academic Year</th>
+                  <th className="px-6 py-4 font-semibold">Schedule</th>
                   <th className="px-6 py-4 text-center font-semibold">
                     Status
                   </th>
@@ -91,7 +105,7 @@ export default function ManageElections() {
                 {isLoading ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="animate-pulse px-6 py-10 text-center text-muted-foreground"
                     >
                       Loading elections database...
@@ -100,75 +114,137 @@ export default function ManageElections() {
                 ) : elections?.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="px-6 py-10 text-center text-muted-foreground"
                     >
                       No elections created yet. Click above to initialize one.
                     </td>
                   </tr>
                 ) : (
-                  elections?.map((election: Election) => (
-                    <tr
-                      key={election.id}
-                      className="transition-colors hover:bg-muted/50"
-                    >
-                      <td className="px-6 py-4 font-medium">{election.name}</td>
-                      <td className="px-6 py-4 text-muted-foreground">
-                        {election.academicYear?.name || "Unbound"}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        {election.isActive ? (
-                          <Badge variant="default">Active Polling</Badge>
-                        ) : (
-                          <Badge variant="secondary">Standby</Badge>
-                        )}
-                      </td>
-                      <td className="flex items-center justify-center gap-2 px-6 py-4 text-center">
-                        <Button
-                          variant={election.isActive ? "outline" : "default"}
-                          size="sm"
-                          className="cursor-pointer"
-                          onClick={() =>
-                            toggleActive(election.id, election.isActive)
-                          }
-                          disabled={updateMutation.isPending}
-                        >
-                          {election.isActive ? "Deactivate" : "Activate"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="cursor-pointer gap-2"
-                          onClick={() => openCandidates(election.id)}
-                        >
-                          <Users className="h-4 w-4" />
-                          Candidates
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="cursor-pointer gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
-                          onClick={() =>
-                            navigate(
-                              `/dashboard/elections/${election.id}/results`
-                            )
-                          }
-                        >
-                          <BarChart2 className="h-4 w-4" />
-                          Results
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="cursor-pointer"
-                          onClick={() => setDeleteId(election.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
+                  elections?.map((election: Election) => {
+                    const now = new Date();
+                    const startTime = new Date(election.startTime);
+                    const endTime = new Date(election.endTime);
+                    let statusLabel = "";
+                    let isConcluded = false;
+
+                    if (now > endTime) {
+                      statusLabel = "Concluded";
+                      isConcluded = true;
+                    } else if (now < startTime) {
+                      statusLabel = "Upcoming";
+                    } else {
+                      statusLabel = "Ongoing";
+                    }
+
+                    return (
+                      <tr
+                        key={election.id}
+                        className="transition-colors hover:bg-muted/50"
+                      >
+                        <td className="px-6 py-4 font-medium">
+                          {election.name}
+                        </td>
+                        <td className="px-6 py-4 text-muted-foreground">
+                          {election.academicYear?.name || "Unbound"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-muted-foreground">
+                          <div className="flex flex-col gap-1 text-center">
+                            <span className="text-[12px]">
+                              {formatDateTime(election.startTime)}
+                            </span>
+                            <span className="text-xs opacity-70">to</span>
+                            <span className="text-[12px]">
+                              {formatDateTime(election.endTime)}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex flex-col items-center justify-center gap-1">
+                            <Badge
+                              variant={
+                                statusLabel === "Ongoing" && election.isActive
+                                  ? "default"
+                                  : "secondary"
+                              }
+                            >
+                              {statusLabel}
+                            </Badge>
+                            {!election.isActive &&
+                              statusLabel === "Ongoing" && (
+                                <span className="text-[10px] tracking-wider text-muted-foreground uppercase">
+                                  Standby
+                                </span>
+                              )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <Button
+                              variant={
+                                election.isActive ? "outline" : "default"
+                              }
+                              size="sm"
+                              className="cursor-pointer"
+                              onClick={() =>
+                                toggleActive(
+                                  election.id,
+                                  election.isActive,
+                                  election.name,
+                                  election.academicYearId
+                                )
+                              }
+                              disabled={
+                                updateMutation.isPending ||
+                                (isConcluded && !election.isActive)
+                              }
+                            >
+                              {election.isActive ? "Deactivate" : "Activate"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="cursor-pointer"
+                              onClick={() => setEditingElection(election)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="cursor-pointer gap-2"
+                              onClick={() => openCandidates(election.id)}
+                            >
+                              <Users className="h-4 w-4" />
+                              Candidates
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="cursor-pointer gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/elections/${election.id}/results`
+                                )
+                              }
+                            >
+                              <BarChart2 className="h-4 w-4" />
+                              Results
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="cursor-pointer"
+                              onClick={() => setDeleteId(election.id)}
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -179,6 +255,11 @@ export default function ManageElections() {
       <CreateElectionDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
+      />
+
+      <EditElectionDialog
+        election={editingElection}
+        onOpenChange={(isOpen) => !isOpen && setEditingElection(null)}
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

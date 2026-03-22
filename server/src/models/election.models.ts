@@ -5,14 +5,18 @@ export const createElectionSchema = z.object({
     name: z.string().min(1, "Election name is required"),
     academicYearId: z.number().min(1, "Academic Year is required"),
     isActive: z.boolean().optional().default(false),
+    startTime: z.coerce.date(),
+    endTime: z.coerce.date(),
   }),
 });
 
 export const updateElectionSchema = z.object({
   body: z.object({
-    name: z.string().min(1, "Election name is required").optional(),
-    academicYearId: z.number().min(1).optional(),
+    name: z.string().min(1, "Election name is required"),
+    academicYearId: z.number().min(1, "Academic Year is required"),
     isActive: z.boolean().optional(),
+    startTime: z.coerce.date().optional(),
+    endTime: z.coerce.date().optional(),
   }),
 });
 

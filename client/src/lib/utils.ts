@@ -23,7 +23,7 @@ export const coleAPI =
   (
     endpointOrOptions: string | ColeAPIOptions,
     method?: string,
-    params?: object,
+    params?: object
   ) =>
   async (data: object) => {
     const token = useMainStore.getState().token;
@@ -105,4 +105,20 @@ export const formatTime = (time: number) => {
   const hours = Math.floor(time / 60);
   const minutes = time % 60;
   return `${hours}h ${minutes}m`;
+};
+
+// formats a date as a local datetime string for datetime-local inputs
+export const toLocalDatetime = (date: Date) => {
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+};
+
+export const formatDateTime = (dateString: string | Date | number) => {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(dateString));
 };

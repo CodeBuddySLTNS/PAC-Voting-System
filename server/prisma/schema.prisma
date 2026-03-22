@@ -44,16 +44,19 @@ model AcademicYear {
 }
 
 model Election {
-  id             Int     @id @default(autoincrement()) @map("id")
-  name           String  @unique // e.g. "2024 General Election"
-  academicYearId Int     @map("academic_year_id")
-  isActive       Boolean @default(false) @map("is_active")
+  id             Int      @id @default(autoincrement()) @map("id")
+  name           String
+  academicYearId Int      @map("academic_year_id")
+  isActive       Boolean  @default(false) @map("is_active")
+  startTime      DateTime @default(now()) @map("start_time")
+  endTime        DateTime @default(now()) @map("end_time")
 
   // Relations
   academicYear AcademicYear @relation(fields: [academicYearId], references: [academicYearId])
   candidates   Candidate[]
   votes        Vote[]
 
+  @@unique([academicYearId, name])
   @@map("elections")
 }
 

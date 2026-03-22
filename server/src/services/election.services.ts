@@ -17,7 +17,12 @@ export const ElectionService = {
 
   createElection: async (data: CreateElectionInput) => {
     const existing = await prisma.election.findUnique({
-      where: { name: data.name },
+      where: {
+        academicYearId_name: {
+          academicYearId: data.academicYearId,
+          name: data.name,
+        },
+      },
     });
 
     if (existing) {
@@ -36,6 +41,8 @@ export const ElectionService = {
         name: data.name,
         academicYearId: data.academicYearId,
         isActive: data.isActive,
+        startTime: data.startTime,
+        endTime: data.endTime,
       },
       include: { academicYear: true },
     });
@@ -52,7 +59,12 @@ export const ElectionService = {
 
     if (data.name && data.name !== existing.name) {
       const nameTaken = await prisma.election.findUnique({
-        where: { name: data.name },
+        where: {
+          academicYearId_name: {
+            academicYearId: data.academicYearId ?? existing.academicYearId,
+            name: data.name,
+          },
+        },
       });
       if (nameTaken) {
         throw new CustomError("Election with this name already exists", 409);
@@ -70,7 +82,7 @@ export const ElectionService = {
     }
 
     const updateData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => v !== undefined)
+      Object.entries(data).filter(([_, v]) => v !== undefined),
     );
 
     return await prisma.election.update({
@@ -111,7 +123,7 @@ export const ElectionService = {
   getElectionResults: async (id: number) => {
     const election = await prisma.election.findUnique({
       where: { id },
-      include: { academicYear: true }
+      include: { academicYear: true },
     });
 
     if (!election) {
@@ -123,8 +135,8 @@ export const ElectionService = {
       include: {
         position: true,
         student: true,
-        _count: { select: { votes: true } }
-      }
+        _count: { select: { votes: true } },
+      },
     });
 
     const positionsMap = new Map<number, any>();
@@ -134,31 +146,31 @@ export const ElectionService = {
           positionId: c.positionId,
           title: c.position.title,
           maxVotes: c.position.maxVotes,
-          candidates: []
+          candidates: [],
         });
       }
       positionsMap.get(c.positionId).candidates.push({
         id: c.candidateId,
-        name: c.student 
+        name: c.student
           ? `${c.student.firstName} ${c.student.lastName}`
           : c.name || "Unknown Candidate",
         partyList: c.partyList,
         imageUrl: c.imageUrl,
-        voteCount: c._count.votes
+        voteCount: c._count.votes,
       });
     });
 
-    const results = Array.from(positionsMap.values()).map(pos => {
+    const results = Array.from(positionsMap.values()).map((pos) => {
       pos.candidates.sort((a: any, b: any) => b.voteCount - a.voteCount);
       return pos;
     });
 
     const totalVotes = await prisma.vote.count({ where: { electionId: id } });
-    
+
     const distinctVoters = await prisma.vote.findMany({
       where: { electionId: id },
-      distinct: ['studentId'],
-      select: { studentId: true }
+      distinct: ["studentId"],
+      select: { studentId: true },
     });
 
     return {
@@ -167,12 +179,13 @@ export const ElectionService = {
         name: election.name,
         academicYear: election.academicYear.name,
         isActive: election.isActive,
+        endTime: election.endTime,
       },
       stats: {
         totalVotes,
-        totalVoters: distinctVoters.length
+        totalVoters: distinctVoters.length,
       },
-      results
+      results,
     };
-  }
+  },
 };

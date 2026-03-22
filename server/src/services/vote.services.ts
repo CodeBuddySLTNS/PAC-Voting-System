@@ -17,17 +17,29 @@ export const VoteService = {
           where: { studentId, electionId: election.id },
         });
 
-        // Ensure we send properties with a shape consistent with the UI
+        const now = new Date();
+        const isPastEnd = new Date(election.endTime) < now;
+        const isBeforeStart = new Date(election.startTime) > now;
+        const isOnSchedule = !isPastEnd && !isBeforeStart;
+
+        // derive ui status from active flag + schedule
+        let status: "active" | "upcoming" | "scheduled" | "ended" = "ended";
+        if (election.isActive && !isPastEnd) status = "active";
+        else if (!election.isActive && isOnSchedule) status = "scheduled";
+        else if (isBeforeStart) status = "upcoming";
+
         return {
           id: election.id,
           title: election.name,
-          status: election.isActive ? "active" : "ended", // For UI mapping
+          status,
           isActive: election.isActive,
           academicYearId: election.academicYearId,
           academicYear: election.academicYear,
+          startTime: election.startTime,
+          endTime: election.endTime,
           voted: voteCount > 0,
         };
-      })
+      }),
     );
 
     return electionsWithVoteStatus;
@@ -39,6 +51,11 @@ export const VoteService = {
     });
     if (!election || !election.isActive) {
       throw new CustomError("Election not found or not active", 404);
+    }
+
+    // block voting if schedule has concluded
+    if (new Date(election.endTime) < new Date()) {
+      throw new CustomError("Election voting period has ended", 403);
     }
 
     const student = await prisma.student.findUnique({
@@ -63,8 +80,8 @@ export const VoteService = {
     // Let's check how the schema maps Candidates to local departments in PAC Voting System.
     // The Candidate has `studentId` which relates to the student running, meaning Candidate -> Student -> departmentId
     // If it's a local position, we only show candidates from the SAME department as the voter.
-    
-    // Fetch all positions 
+
+    // Fetch all positions
     const positions = await prisma.position.findMany();
 
     // Fetch candidates for this election
@@ -72,7 +89,15 @@ export const VoteService = {
       where: { electionId },
       include: {
         position: true,
-        student: { select: { id: true, firstName: true, middleName: true, lastName: true, departmentId: true } },
+        student: {
+          select: {
+            id: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+            departmentId: true,
+          },
+        },
       },
     });
 
@@ -80,19 +105,27 @@ export const VoteService = {
 
     for (const position of positions) {
       // Find candidates for this position
-      let positionCandidates = candidates.filter(c => c.positionId === position.positionId);
-      
+      let positionCandidates = candidates.filter(
+        (c) => c.positionId === position.positionId,
+      );
+
       if (!position.isGlobal) {
         // Filter out candidates that do not belong to the voter's department
-        positionCandidates = positionCandidates.filter(c => c.student && c.student.departmentId === student.departmentId);
+        positionCandidates = positionCandidates.filter(
+          (c) => c.student && c.student.departmentId === student.departmentId,
+        );
       }
 
       if (positionCandidates.length > 0) {
         ballotPositions.push({
           ...position,
-          candidates: positionCandidates.map(c => ({
+          candidates: positionCandidates.map((c) => ({
             id: c.candidateId,
-            name: c.name || (c.student ? `${c.student.firstName} ${c.student.lastName}` : "Unknown"),
+            name:
+              c.name ||
+              (c.student
+                ? `${c.student.firstName} ${c.student.lastName}`
+                : "Unknown"),
             partyList: c.partyList,
             imageUrl: c.imageUrl,
           })),
@@ -103,13 +136,22 @@ export const VoteService = {
     return { election, ballot: ballotPositions };
   },
 
-  submitVote: async (electionId: number, studentId: number, data: SubmitVoteInput) => {
+  submitVote: async (
+    electionId: number,
+    studentId: number,
+    data: SubmitVoteInput,
+  ) => {
     // Check if active
     const election = await prisma.election.findUnique({
       where: { id: electionId },
     });
     if (!election || !election.isActive) {
       throw new CustomError("Election is not active", 400);
+    }
+
+    // block voting if schedule has concluded
+    if (new Date(election.endTime) < new Date()) {
+      throw new CustomError("Election voting period has ended", 403);
     }
 
     // Check if already voted
@@ -141,12 +183,15 @@ export const VoteService = {
     for (const pos of positions) {
       const voteCount = votesByPosition.get(pos.positionId) || 0;
       if (voteCount > pos.maxVotes) {
-        throw new CustomError(`Exceeded maximum votes for position ${pos.title}. Allowed: ${pos.maxVotes}, Given: ${voteCount}`, 400);
+        throw new CustomError(
+          `Exceeded maximum votes for position ${pos.title}. Allowed: ${pos.maxVotes}, Given: ${voteCount}`,
+          400,
+        );
       }
     }
 
     // Verify candidate validity
-    const voteData = data.votes.map(v => ({
+    const voteData = data.votes.map((v) => ({
       studentId,
       candidateId: v.candidateId,
       positionId: v.positionId,
@@ -160,5 +205,5 @@ export const VoteService = {
     });
 
     return { success: true };
-  }
+  },
 };
