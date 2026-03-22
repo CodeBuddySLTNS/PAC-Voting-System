@@ -42,7 +42,7 @@ export default function ElectionResults() {
   const { election, stats, results } = data;
 
   return (
-    <div className="animate-in space-y-6 duration-500 fade-in slide-in-from-bottom-4">
+    <div className="animate-in space-y-6 pb-8 duration-500 fade-in slide-in-from-bottom-4">
       <div className="flex items-center justify-between gap-4 print:hidden">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">
@@ -52,13 +52,16 @@ export default function ElectionResults() {
             Academic Year {election.academicYear}
           </p>
         </div>
-        <div className="mb-2 flex items-center gap-2">
+        <div className="mb-2 hidden items-center gap-2 sm:flex">
           <Button
             variant="ghost"
-            onClick={() => navigate(user?.adminId ? "/dashboard/elections" : "/student")}
+            onClick={() =>
+              navigate(user?.adminId ? "/dashboard/elections" : "/student")
+            }
             className="-ml-3 cursor-pointer gap-2 text-muted-foreground"
           >
-            <ArrowLeft className="h-5 w-5" /> Back to {user?.adminId ? "Elections" : "Dashboard"}
+            <ArrowLeft className="h-5 w-5" /> Back to{" "}
+            {user?.adminId ? "Elections" : "Dashboard"}
           </Button>
 
           {user?.adminId && (
@@ -141,7 +144,10 @@ export default function ElectionResults() {
               : 0;
 
           return (
-            <Card key={position.positionId} className="overflow-hidden p-0">
+            <Card
+              key={position.positionId}
+              className="gap-0 overflow-hidden p-0"
+            >
               <div className="border-b bg-muted/30 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">{position.title}</h3>

@@ -157,6 +157,7 @@ export const AuthService = {
           firstName: true,
           middleName: true,
           lastName: true,
+          isActive: true,
           department: {
             select: {
               id: true,

@@ -5,6 +5,7 @@ import { Ticket, AlertCircle, Camera } from "lucide-react";
 import { useStudentElections } from "@/hooks/use-voting";
 import { toast } from "sonner";
 import LoadingAnimation from "@/components/loading-animation/loading";
+import { cn } from "@/lib/utils";
 
 export default function StudentDashboard() {
   const user = useMainStore((state) => state.user);
@@ -41,7 +42,7 @@ export default function StudentDashboard() {
     (elections?.filter((e) => e.voted && e.isActive).length || 0);
 
   return (
-    <div className="animate-in space-y-8 duration-500 fade-in slide-in-from-bottom-4">
+    <div className="animate-in space-y-8 pb-8 duration-500 fade-in slide-in-from-bottom-4">
       {/* Welcome Banner */}
       <div className="flex flex-col gap-1.5">
         <h2 className="text-3xl font-bold tracking-tight">
@@ -58,13 +59,27 @@ export default function StudentDashboard() {
           <Card className="border-none bg-card p-0 shadow-sm dark:bg-zinc-900/40">
             <CardContent className="p-6">
               <div className="mb-4 flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div
+                  className={cn(
+                    "flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10",
+                    user?.isActive
+                      ? "text-primary"
+                      : "border bg-red-500/10 text-red-500"
+                  )}
+                >
                   <Ticket className="h-6 w-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Your Status</h3>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                    Eligible to vote
+                  <p
+                    className={cn(
+                      "text-sm",
+                      user?.isActive ? "text-green-500" : "text-red-500"
+                    )}
+                  >
+                    {user?.isActive
+                      ? "Eligible to vote"
+                      : "Not Eligible to vote"}
                   </p>
                 </div>
               </div>
@@ -131,17 +146,17 @@ export default function StudentDashboard() {
                 return b.id - a.id;
               })
               .map((election) => (
-              <ElectionCard
-                key={election.id}
-                id={election.id}
-                title={election.title}
-                academicYear={election.academicYear?.name || "Unknown"}
-                status={election.status}
-                voted={election.voted}
-                startTime={election.startTime}
-                endTime={election.endTime}
-              />
-            ))}
+                <ElectionCard
+                  key={election.id}
+                  id={election.id}
+                  title={election.title}
+                  academicYear={election.academicYear?.name || "Unknown"}
+                  status={election.status}
+                  voted={election.voted}
+                  startTime={election.startTime}
+                  endTime={election.endTime}
+                />
+              ))}
           </div>
         </div>
       </div>

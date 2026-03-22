@@ -8,6 +8,7 @@ import {
 import { Button } from "../../../components/ui/button";
 import { CalendarIcon, Clock, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useMainStore } from "@/store";
 
 interface ElectionCardProps {
   id: number;
@@ -44,6 +45,7 @@ export default function ElectionCard({
   const now = new Date();
   const isPastEnd = new Date(endTime) < now;
   const isNotStarted = new Date(startTime) > now;
+  const user = useMainStore((state) => state.user);
 
   // can only vote if status is active AND schedule has not ended AND hasn't started yet
   const canVote = status === "active" && !isPastEnd && !isNotStarted && !voted;
@@ -131,12 +133,19 @@ export default function ElectionCard({
                 Partial Results
               </Link>
             </Button>
-            <Button asChild className="w-full sm:w-auto">
-              <Link to={`/student/election/${id}/vote`}>
+            {user?.isActive ? (
+              <Button asChild className="w-full sm:w-auto">
+                <Link to={`/student/election/${id}/vote`}>
+                  Cast Vote
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            ) : (
+              <Button className="w-full sm:w-auto" disabled>
                 Cast Vote
                 <ChevronRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
+              </Button>
+            )}
           </>
         )}
 

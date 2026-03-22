@@ -119,7 +119,7 @@ export default function ElectionBallotForm() {
             return (
               <Card
                 key={position.positionId}
-                className="overflow-hidden bg-card text-card-foreground shadow-sm"
+                className="gap-0 overflow-hidden bg-card p-0 text-card-foreground shadow-sm"
               >
                 <div className="flex flex-col justify-between gap-2 border-b border-border bg-muted/50 px-4 py-3 sm:flex-row sm:items-center sm:px-6 sm:py-4">
                   <div>
