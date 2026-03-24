@@ -87,7 +87,7 @@ export default function ElectionBallotForm() {
   };
 
   return (
-    <div className="container mx-auto px-2 py-4 sm:px-4 sm:py-8">
+    <div className="container mx-auto px-2 py-4 sm:p-0 sm:pt-2">
       <div className="mx-auto max-w-4xl animate-in space-y-8 fade-in slide-in-from-bottom-4">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

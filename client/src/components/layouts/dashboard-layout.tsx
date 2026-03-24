@@ -46,11 +46,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       href: "/dashboard/students",
       icon: <Users className="h-5 w-5" />,
     },
-    {
-      name: "Reports",
-      href: "/dashboard/reports",
-      icon: <BarChart className="h-5 w-5" />,
-    },
+    // {
+    //   name: "Reports",
+    //   href: "/dashboard/reports",
+    //   icon: <BarChart className="h-5 w-5" />,
+    // },
   ];
 
   const studentLinks: SidebarItem[] = [
