@@ -28,5 +28,28 @@ export const UserController = {
       throw error;
     }
   },
-};
 
+  updateStudent: async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id as string);
+    if (isNaN(id)) {
+      res.status(400).json({ message: "Invalid student ID" });
+      return;
+    }
+
+    const imageFilename = req.file?.filename;
+    try {
+      const student = await UserService.updateStudent(id, req.body, imageFilename);
+      res.status(200).json({ message: "Student updated successfully", student });
+    } catch (error: any) {
+      if (error.message === "Student not found") {
+        res.status(404).json({ message: "Student not found" });
+        return;
+      }
+      if (error.message === "Email already in use") {
+        res.status(409).json({ message: "Email already in use" });
+        return;
+      }
+      throw error;
+    }
+  },
+};

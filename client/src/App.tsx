@@ -20,6 +20,7 @@ import StudentDashboard from "./pages/student/student-dashboard";
 import ManageElections from "./pages/admin/manage-elections";
 import ManageCandidates from "./pages/admin/manage-candidates";
 import ManageStudents from "./pages/admin/manage-students";
+import ManageAdmins from "./pages/admin/manage-admins";
 import ElectionBallotForm from "./pages/student/election-ballot";
 import ElectionResults from "./pages/admin/election-results";
 import LoadingAnimation from "./components/loading-animation/loading";
@@ -108,6 +109,14 @@ export function App() {
               element={
                 <DashboardLayout>
                   <ManageStudents />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/dashboard/admins"
+              element={
+                <DashboardLayout>
+                  <ManageAdmins />
                 </DashboardLayout>
               }
             />

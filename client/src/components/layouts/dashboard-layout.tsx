@@ -8,7 +8,7 @@ import {
   Home,
   Users,
   CheckSquare,
-  BarChart,
+  ShieldCheck,
 } from "lucide-react";
 import { useMainStore } from "../../store";
 import { Button } from "../ui/button";
@@ -45,6 +45,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       name: "Students",
       href: "/dashboard/students",
       icon: <Users className="h-5 w-5" />,
+    },
+    {
+      name: "Admins",
+      href: "/dashboard/admins",
+      icon: <ShieldCheck className="h-5 w-5" />,
     },
     // {
     //   name: "Reports",

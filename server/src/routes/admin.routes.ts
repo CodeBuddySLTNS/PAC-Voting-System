@@ -1,22 +1,24 @@
 import { Router } from "express";
 import { tryCatch } from "../lib/utils";
 import authenticate from "../middlewares/authentication";
-import { UserController } from "../controllers/user.controllers";
+import { AdminController } from "../controllers/admin.controllers";
 import { multerUpload } from "../middlewares/multer-upload";
 
 const router = Router();
 
 router.use(authenticate);
 
-router.get("/students", tryCatch(UserController.getAllStudents));
-router.patch(
-  "/students/:id/toggle-status",
-  tryCatch(UserController.toggleStudentStatus),
-);
-router.patch(
-  "/students/:id",
+router.get("/", tryCatch(AdminController.getAll));
+router.post(
+  "/",
   multerUpload.single("image"),
-  tryCatch(UserController.updateStudent),
+  tryCatch(AdminController.create),
 );
+router.patch(
+  "/:id",
+  multerUpload.single("image"),
+  tryCatch(AdminController.update),
+);
+router.delete("/:id", tryCatch(AdminController.remove));
 
 export default router;

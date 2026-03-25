@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
-import { useStudents, useToggleStudentStatus } from "@/hooks/use-students";
+import { useStudents, useToggleStudentStatus, type Student } from "@/hooks/use-students";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import EditStudentDialog from "./components/edit-student-dialog";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -15,6 +16,7 @@ export default function ManageStudents() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -84,13 +86,16 @@ export default function ManageStudents() {
                   <th className="px-6 py-4 text-center font-semibold">
                     Active
                   </th>
+                  <th className="px-6 py-4 text-center font-semibold">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-card">
                 {isLoading ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="animate-pulse px-6 py-10 text-center text-muted-foreground"
                     >
                       Loading students...
@@ -99,7 +104,7 @@ export default function ManageStudents() {
                 ) : paginatedStudents.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="px-6 py-10 text-center text-muted-foreground"
                     >
                       No students found matching your criteria.
@@ -136,6 +141,16 @@ export default function ManageStudents() {
                           }}
                           disabled={toggleStatusMutation.isPending}
                         />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          onClick={() => setEditingStudent(student)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                       </td>
                     </tr>
                   ))
@@ -196,6 +211,13 @@ export default function ManageStudents() {
           )}
         </CardContent>
       </Card>
+      {editingStudent && (
+        <EditStudentDialog
+          student={editingStudent}
+          open={!!editingStudent}
+          onOpenChange={(open) => !open && setEditingStudent(null)}
+        />
+      )}
     </div>
   );
 }

@@ -34,5 +34,50 @@ export const UserService = {
       },
     });
   },
-};
 
+  updateStudent: async (
+    id: number,
+    data: {
+      firstName?: string;
+      middleName?: string;
+      lastName?: string;
+      email?: string;
+      departmentId?: string | number;
+      yearLevelId?: string | number;
+    },
+    imageFilename?: string,
+  ) => {
+    const student = await prisma.student.findUnique({ where: { id } });
+
+    if (!student) {
+      throw new Error("Student not found");
+    }
+
+    // check email uniqueness if changing
+    if (data.email && data.email !== student.email) {
+      const existing = await prisma.student.findUnique({
+        where: { email: data.email },
+      });
+      if (existing) {
+        throw new Error("Email already in use");
+      }
+    }
+
+    return prisma.student.update({
+      where: { id },
+      data: {
+        ...(data.firstName && { firstName: data.firstName }),
+        ...(data.middleName !== undefined && { middleName: data.middleName || null }),
+        ...(data.lastName && { lastName: data.lastName }),
+        ...(data.email && { email: data.email }),
+        ...(data.departmentId && { departmentId: Number(data.departmentId) }),
+        ...(data.yearLevelId && { yearLevelId: Number(data.yearLevelId) }),
+        ...(imageFilename && { imageUrl: imageFilename }),
+      },
+      include: {
+        department: true,
+        yearLevel: true,
+      },
+    });
+  },
+};
