@@ -214,6 +214,7 @@ export default function ManageElections() {
                               size="sm"
                               className="cursor-pointer gap-2"
                               onClick={() => openCandidates(election.id)}
+                              disabled={election.isActive || isConcluded}
                             >
                               <Users className="h-4 w-4" />
                               Candidates

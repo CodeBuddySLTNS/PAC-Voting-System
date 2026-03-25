@@ -24,7 +24,9 @@ export default function EditAdminDialog({
   onOpenChange,
 }: EditAdminDialogProps) {
   const initialPreview = admin.imageUrl ? handlePhotoUrl(admin.imageUrl) : null;
-  const [imagePreview, setImagePreview] = useState<string | null>(initialPreview);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialPreview
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const updateMutation = useUpdateAdmin();
 
@@ -39,7 +41,7 @@ export default function EditAdminDialog({
         onSuccess: () => {
           onOpenChange(false);
         },
-      },
+      }
     );
   };
 
@@ -66,13 +68,13 @@ export default function EditAdminDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* profile image */}
           <div className="flex flex-col items-center gap-3">
-            <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/30 bg-muted/50">
+            <div className="relative h-24 w-24 rounded-full border-2 border-dashed border-muted-foreground/30 bg-muted/50">
               {imagePreview ? (
                 <>
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full rounded-full object-cover"
                   />
                   <button
                     type="button"

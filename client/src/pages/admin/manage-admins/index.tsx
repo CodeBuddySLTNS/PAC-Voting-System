@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Search, ChevronLeft, ChevronRight, Trash2, Pencil } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Trash2, Edit } from "lucide-react";
 import { handlePhotoUrl, formatDateTime } from "@/lib/utils";
 import CreateAdminDialog from "./components/create-admin-dialog";
 import EditAdminDialog from "./components/edit-admin-dialog";
@@ -36,8 +36,7 @@ export default function ManageAdmins() {
 
     return admins.filter((admin) => {
       const query = searchQuery.toLowerCase();
-      const fullName =
-        `${admin.lastName} ${admin.firstName}`.toLowerCase();
+      const fullName = `${admin.lastName} ${admin.firstName}`.toLowerCase();
       const email = admin.email.toLowerCase();
 
       return fullName.includes(query) || email.includes(query);
@@ -152,49 +151,52 @@ export default function ManageAdmins() {
                         {formatDateTime(admin.createdAt)}
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          onClick={() => setEditingAdmin(admin)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Delete Admin
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete{" "}
-                                <strong>
-                                  {admin.firstName} {admin.lastName}
-                                </strong>
-                                ? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteMutation.mutate(admin.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="cursor-pointer"
+                            onClick={() => setEditingAdmin(admin)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                className="cursor-pointer"
+                                disabled={deleteMutation.isPending}
                               >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Delete Admin
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete{" "}
+                                  <strong>
+                                    {admin.firstName} {admin.lastName}
+                                  </strong>
+                                  ? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    deleteMutation.mutate(admin.id)
+                                  }
+                                  className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </td>
                     </tr>
@@ -214,10 +216,7 @@ export default function ManageAdmins() {
                 </span>{" "}
                 to{" "}
                 <span className="font-medium text-foreground">
-                  {Math.min(
-                    startIndex + ITEMS_PER_PAGE,
-                    filteredAdmins.length
-                  )}
+                  {Math.min(startIndex + ITEMS_PER_PAGE, filteredAdmins.length)}
                 </span>{" "}
                 of{" "}
                 <span className="font-medium text-foreground">

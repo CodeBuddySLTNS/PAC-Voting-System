@@ -1,11 +1,15 @@
 import { useState, useMemo } from "react";
-import { useStudents, useToggleStudentStatus, type Student } from "@/hooks/use-students";
+import {
+  useStudents,
+  useToggleStudentStatus,
+  type Student,
+} from "@/hooks/use-students";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Edit } from "lucide-react";
 import EditStudentDialog from "./components/edit-student-dialog";
 
 const ITEMS_PER_PAGE = 10;
@@ -144,12 +148,12 @@ export default function ManageStudents() {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          variant="outline"
+                          size="sm"
+                          className="cursor-pointer"
                           onClick={() => setEditingStudent(student)}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Edit className="h-4 w-4" />
                         </Button>
                       </td>
                     </tr>
