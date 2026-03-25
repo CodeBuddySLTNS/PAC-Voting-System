@@ -27,16 +27,16 @@ export const DashboardService = {
       action: "Vote casted",
       user: `${vote.student.firstName} ${vote.student.lastName}`,
       time: vote.timestamp,
-      avatar: vote.student.firstName[0] || "?",
+      imageUrl: vote.student.imageUrl,
     }));
 
     const recentElections = await prisma.election.findMany({
       take: 5,
       orderBy: { id: "desc" },
-      select: { 
-        id: true, 
+      select: {
+        id: true,
         name: true,
-        academicYear: { select: { name: true } }
+        academicYear: { select: { name: true } },
       },
     });
 
@@ -47,7 +47,10 @@ export const DashboardService = {
           distinct: ["studentId"],
           select: { studentId: true },
         });
-        return { name: `${e.name} (${e.academicYear.name})`, value: votes.length };
+        return {
+          name: `${e.name} (${e.academicYear.name})`,
+          value: votes.length,
+        };
       }),
     );
 

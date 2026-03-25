@@ -15,7 +15,7 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
-import { coleAPI } from "@/lib/utils";
+import { coleAPI, handlePhotoUrl } from "@/lib/utils";
 import { isAxiosError } from "axios";
 
 interface SidebarItem {
@@ -197,9 +197,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </p>
             </div>
             <Avatar className="h-9 w-9 cursor-pointer border-2 border-primary-foreground/20 shadow-sm ring-primary-foreground/50 transition-all hover:ring-2 dark:border-foreground/20 dark:ring-foreground/50">
-              <AvatarImage
-                src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.firstName}`}
-              />
+              <AvatarImage src={handlePhotoUrl(user?.imageUrl)} />
               <AvatarFallback className="bg-primary-foreground/10 font-semibold text-primary-foreground dark:bg-foreground/10 dark:text-white">
                 {user?.firstName?.[0]}
                 {user?.lastName?.[0]}

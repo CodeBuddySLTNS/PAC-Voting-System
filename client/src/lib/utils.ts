@@ -97,7 +97,8 @@ export const coleAPI =
   };
 
 export const handlePhotoUrl = (imgPath?: string | null) => {
-  if (!imgPath) return "/img/default-icon.webp";
+  if (!imgPath)
+    return `https://api.dicebear.com/7.x/notionists/svg?seed=${crypto.randomUUID()}`;
   return `${baseURL}/uploads/${imgPath}`;
 };
 

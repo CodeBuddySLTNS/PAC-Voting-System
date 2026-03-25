@@ -20,6 +20,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import LoadingAnimation from "../../components/loading-animation/loading";
+import { handlePhotoUrl } from "@/lib/utils";
 const chartConfig = {
   value: {
     label: "Turnout",
@@ -174,11 +175,9 @@ export default function AdminDashboard() {
                 stats.recentActivity.map((activity) => (
                   <div key={activity.id} className="flex items-center gap-4">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={`https://api.dicebear.com/7.x/notionists/svg?seed=${activity.user}`}
-                      />
+                      <AvatarImage src={handlePhotoUrl(activity?.imageUrl)} />
                       <AvatarFallback className="bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                        {activity.avatar}
+                        {activity.user.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-1 flex-col space-y-1">

@@ -63,18 +63,18 @@ export default function CreateAdminDialog() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* profile image */}
           <div className="flex flex-col items-center gap-3">
-            <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/30 bg-muted/50">
+            <div className="relative h-24 w-24 rounded-full border-2 border-dashed border-muted-foreground/30 bg-muted/50">
               {imagePreview ? (
                 <>
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full rounded-full object-cover"
                   />
                   <button
                     type="button"
                     onClick={clearImage}
-                    className="absolute top-0 right-0 rounded-full bg-destructive p-1 text-white shadow"
+                    className="absolute top-0 right-0 z-100 rounded-full bg-destructive p-1 text-white shadow"
                   >
                     <X className="h-3 w-3" />
                   </button>

@@ -6,6 +6,7 @@ export interface User {
   lastName: string;
   email: string;
   isActive: boolean;
+  imageUrl?: string;
 }
 
 interface MainStore {

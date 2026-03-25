@@ -34,8 +34,12 @@ export default function EditStudentDialog({
   const initialPreview = student.imageUrl
     ? handlePhotoUrl(student.imageUrl)
     : null;
-  const [imagePreview, setImagePreview] = useState<string | null>(initialPreview);
-  const [departmentId, setDepartmentId] = useState(String(student.departmentId));
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialPreview
+  );
+  const [departmentId, setDepartmentId] = useState(
+    String(student.departmentId)
+  );
   const [yearLevelId, setYearLevelId] = useState(String(student.yearLevelId));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const updateMutation = useUpdateStudent();
@@ -55,7 +59,7 @@ export default function EditStudentDialog({
         onSuccess: () => {
           onOpenChange(false);
         },
-      },
+      }
     );
   };
 
@@ -82,13 +86,13 @@ export default function EditStudentDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* profile image */}
           <div className="flex flex-col items-center gap-3">
-            <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/30 bg-muted/50">
+            <div className="relative h-24 w-24 rounded-full border-2 border-dashed border-muted-foreground/30 bg-muted/50">
               {imagePreview ? (
                 <>
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full rounded-full object-cover"
                   />
                   <button
                     type="button"
@@ -141,10 +145,7 @@ export default function EditStudentDialog({
 
           <div>
             <FieldLabel>Middle Name</FieldLabel>
-            <Input
-              name="middleName"
-              defaultValue={student.middleName || ""}
-            />
+            <Input name="middleName" defaultValue={student.middleName || ""} />
           </div>
 
           <div>

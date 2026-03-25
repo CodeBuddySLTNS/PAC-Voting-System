@@ -16,7 +16,7 @@ export interface DashboardStats {
     action: string;
     user: string;
     time: string;
-    avatar: string;
+    imageUrl: string;
   }[];
 }
 
