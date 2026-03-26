@@ -3,10 +3,12 @@ import { tryCatch } from "../lib/utils";
 import authenticate from "../middlewares/authentication";
 import { AdminController } from "../controllers/admin.controllers";
 import { multerUpload } from "../middlewares/multer-upload";
+import { permissions } from "../middlewares/permissions";
 
 const router = Router();
 
 router.use(authenticate);
+router.use(permissions.admin);
 
 router.get("/", tryCatch(AdminController.getAll));
 router.post(

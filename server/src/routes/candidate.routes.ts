@@ -6,8 +6,13 @@ import {
 } from "../models/candidate.models";
 import { CandidateController } from "../controllers/candidate.controllers";
 import { validate } from "../middlewares/validate";
+import authenticate from "../middlewares/authentication";
+import { permissions } from "../middlewares/permissions";
 
 const router = Router();
+
+router.use(authenticate);
+router.use(permissions.admin);
 
 // /api/candidates
 router.get(
