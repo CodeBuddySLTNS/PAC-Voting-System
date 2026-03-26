@@ -65,7 +65,7 @@ export default function ElectionCard({
     active: "Live Now",
     scheduled: "Scheduled Today",
     upcoming: "Upcoming",
-    ended: "Concluded",
+    ended: "Ended",
   };
 
   // override label when active but schedule ended

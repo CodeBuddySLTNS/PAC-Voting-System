@@ -129,7 +129,7 @@ export default function ManageElections() {
                     let isConcluded = false;
 
                     if (now > endTime) {
-                      statusLabel = "Concluded";
+                      statusLabel = "Ended";
                       isConcluded = true;
                     } else if (now < startTime) {
                       statusLabel = "Upcoming";
