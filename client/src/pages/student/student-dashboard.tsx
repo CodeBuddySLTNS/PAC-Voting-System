@@ -5,7 +5,8 @@ import { Ticket, AlertCircle, Camera } from "lucide-react";
 import { useStudentElections } from "@/hooks/use-voting";
 import { toast } from "sonner";
 import LoadingAnimation from "@/components/loading-animation/loading";
-import { cn } from "@/lib/utils";
+import { cn, handlePhotoUrl } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function StudentDashboard() {
   const user = useMainStore((state) => state.user);
@@ -106,9 +107,18 @@ export default function StudentDashboard() {
             <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-secondary/5 opacity-0 transition-opacity group-hover:opacity-100" />
             <CardContent className="relative z-10 flex flex-col items-center justify-center p-6 text-center">
               <div className="relative mb-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/20 text-3xl font-bold text-primary">
-                  {user?.firstName?.charAt(0) || "U"}
-                </div>
+                <Avatar className="h-20 w-20">
+                  <AvatarImage
+                    src={handlePhotoUrl(
+                      user?.imageUrl,
+                      `${user?.firstName} ${user?.lastName}`
+                    )}
+                  />
+                  <AvatarFallback>
+                    {user?.firstName?.charAt(0) || "?"}
+                  </AvatarFallback>
+                </Avatar>
+
                 <button
                   className="absolute right-0 bottom-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform hover:scale-105"
                   onClick={() =>

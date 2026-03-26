@@ -197,7 +197,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </p>
             </div>
             <Avatar className="h-9 w-9 cursor-pointer border-2 border-primary-foreground/20 shadow-sm ring-primary-foreground/50 transition-all hover:ring-2 dark:border-foreground/20 dark:ring-foreground/50">
-              <AvatarImage src={handlePhotoUrl(user?.imageUrl)} />
+              <AvatarImage
+                src={handlePhotoUrl(
+                  user?.imageUrl,
+                  `${user?.firstName} ${user?.lastName}`
+                )}
+              />
               <AvatarFallback className="bg-primary-foreground/10 font-semibold text-primary-foreground dark:bg-foreground/10 dark:text-white">
                 {user?.firstName?.[0]}
                 {user?.lastName?.[0]}

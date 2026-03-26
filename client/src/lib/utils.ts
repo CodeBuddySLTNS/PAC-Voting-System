@@ -96,9 +96,12 @@ export const coleAPI =
     }
   };
 
-export const handlePhotoUrl = (imgPath?: string | null) => {
+export const handlePhotoUrl = (
+  imgPath?: string | null,
+  alt?: string | null
+) => {
   if (!imgPath)
-    return `https://api.dicebear.com/7.x/notionists/svg?seed=${crypto.randomUUID()}`;
+    return `https://api.dicebear.com/7.x/notionists/svg?seed=${alt || crypto.randomUUID()}`;
   return `${baseURL}/uploads/${imgPath}`;
 };
 

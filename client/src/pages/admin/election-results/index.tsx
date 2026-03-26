@@ -7,6 +7,8 @@ import { Progress } from "@/components/ui/progress";
 import LoadingAnimation from "@/components/loading-animation/loading";
 import { WinnersDialog } from "./components/winners-dialog";
 import { useMainStore } from "@/store";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { handlePhotoUrl } from "@/lib/utils";
 
 export default function ElectionResults() {
   const { id } = useParams();
@@ -190,17 +192,18 @@ export default function ElectionResults() {
                         className="group relative flex items-center justify-between p-6 transition-colors hover:bg-muted/10"
                       >
                         <div className="flex w-1/3 min-w-[200px] items-center gap-4">
-                          {candidate.imageUrl ? (
-                            <img
-                              src={candidate.imageUrl}
-                              alt={candidate.name || "Candidate"}
-                              className="h-10 w-10 shrink-0 rounded-full border object-cover"
+                          <Avatar>
+                            <AvatarImage
+                              src={handlePhotoUrl(
+                                candidate.imageUrl,
+                                candidate.name
+                              )}
                             />
-                          ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
+                            <AvatarFallback>
                               {candidate.name?.charAt(0) || "?"}
-                            </div>
-                          )}
+                            </AvatarFallback>
+                          </Avatar>
+
                           <div>
                             <p className="flex items-center gap-2 font-semibold text-foreground">
                               {candidate.name}
