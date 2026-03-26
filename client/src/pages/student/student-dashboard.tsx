@@ -1,5 +1,6 @@
 import { useMainStore } from "../../store";
-import ElectionCard from "./components/election-card";
+import ActiveElections from "./components/active-elections/active-elections";
+import PastElections from "./components/past-elections/past-elections";
 import { Card, CardContent } from "../../components/ui/card";
 import { Ticket, AlertCircle, Camera } from "lucide-react";
 import { useStudentElections } from "@/hooks/use-voting";
@@ -136,38 +137,10 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        {/* Elections List */}
-        <div className="space-y-4 md:col-span-2">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-xl font-semibold tracking-tight">
-              Recent Elections
-            </h3>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {elections?.length === 0 && (
-              <p className="text-sm text-zinc-500">No elections found.</p>
-            )}
-            {elections
-              ?.slice()
-              .sort((a, b) => {
-                // active elections first, then by newest id
-                if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
-                return b.id - a.id;
-              })
-              .map((election) => (
-                <ElectionCard
-                  key={election.id}
-                  id={election.id}
-                  title={election.title}
-                  academicYear={election.academicYear?.name || "Unknown"}
-                  status={election.status}
-                  voted={election.voted}
-                  startTime={election.startTime}
-                  endTime={election.endTime}
-                />
-              ))}
-          </div>
+        {/* Elections Sections */}
+        <div className="space-y-12 md:col-span-2">
+          <ActiveElections elections={elections || []} />
+          <PastElections elections={elections || []} />
         </div>
       </div>
     </div>

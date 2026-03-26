@@ -126,7 +126,10 @@ export default function ManageAdmins() {
                         <div className="flex items-center gap-3">
                           <Avatar className="h-9 w-9 border">
                             <AvatarImage
-                              src={handlePhotoUrl(admin.imageUrl)}
+                              src={handlePhotoUrl(
+                                admin.imageUrl,
+                                `${admin.firstName} ${admin.lastName}`
+                              )}
                               alt={admin.firstName}
                             />
                             <AvatarFallback className="text-xs font-semibold">

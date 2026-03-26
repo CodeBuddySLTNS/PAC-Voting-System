@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { coleAPI, baseURL } from "@/lib/utils";
+import { coleAPI } from "@/lib/utils";
 import { axiosInstance } from "@/lib/auth-interceptor";
 import { useMainStore } from "@/store";
 import { toast } from "sonner";
@@ -47,9 +47,7 @@ export function useCreateAdmin() {
     },
     onError: (error) => {
       if (isAxiosError(error)) {
-        toast.error(
-          error.response?.data?.message || "Failed to create admin"
-        );
+        toast.error(error.response?.data?.message || "Failed to create admin");
       } else {
         toast.error("An unexpected error occurred");
       }
@@ -71,9 +69,7 @@ export function useDeleteAdmin() {
     },
     onError: (error) => {
       if (isAxiosError(error)) {
-        toast.error(
-          error.response?.data?.message || "Failed to delete admin"
-        );
+        toast.error(error.response?.data?.message || "Failed to delete admin");
       } else {
         toast.error("An unexpected error occurred");
       }
@@ -85,7 +81,13 @@ export function useUpdateAdmin() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, formData }: { id: number; formData: FormData }) => {
+    mutationFn: async ({
+      id,
+      formData,
+    }: {
+      id: number;
+      formData: FormData;
+    }) => {
       const token = useMainStore.getState().token;
       const res = await axiosInstance.patch(`/api/admins/${id}`, formData, {
         headers: {
@@ -102,9 +104,7 @@ export function useUpdateAdmin() {
     },
     onError: (error) => {
       if (isAxiosError(error)) {
-        toast.error(
-          error.response?.data?.message || "Failed to update admin"
-        );
+        toast.error(error.response?.data?.message || "Failed to update admin");
       } else {
         toast.error("An unexpected error occurred");
       }

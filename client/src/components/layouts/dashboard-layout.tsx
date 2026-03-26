@@ -62,7 +62,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { name: "Dashboard", href: "/student", icon: <Home className="h-5 w-5" /> },
     {
       name: "Active Elections",
-      href: "/student/elections",
+      href: "/student/active-elections",
       icon: <CheckSquare className="h-5 w-5" />,
     },
   ];

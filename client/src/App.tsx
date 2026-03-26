@@ -23,6 +23,7 @@ import ManageStudents from "./pages/admin/manage-students";
 import ManageAdmins from "./pages/admin/manage-admins";
 import ElectionBallotForm from "./pages/student/election-ballot";
 import ElectionResults from "./pages/admin/election-results";
+import ActiveElectionsPage from "@/pages/student/active-elections";
 import LoadingAnimation from "./components/loading-animation/loading";
 
 const RoleAccess = () => {
@@ -141,6 +142,14 @@ export function App() {
               element={
                 <DashboardLayout>
                   <ElectionResults />
+                </DashboardLayout>
+              }
+            />
+            <Route
+              path="/student/active-elections"
+              element={
+                <DashboardLayout>
+                  <ActiveElectionsPage />
                 </DashboardLayout>
               }
             />
