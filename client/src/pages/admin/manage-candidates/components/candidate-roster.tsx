@@ -14,6 +14,8 @@ import {
   useDeleteCandidate,
 } from "@/hooks/use-candidates";
 import { usePositions } from "@/hooks/use-config";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { handlePhotoUrl } from "@/lib/utils";
 
 interface CandidateRosterProps {
   electionId: number;
@@ -76,9 +78,7 @@ export function CandidateRoster({ electionId }: CandidateRosterProps) {
     <Card className="flex h-max flex-col gap-0 border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
       <CardHeader className="border-b border-border/50 pb-3">
         <CardTitle className="text-lg">Active Roster</CardTitle>
-        <CardDescription>
-          Live preview of assigned candidates.
-        </CardDescription>
+        <CardDescription>Live preview of assigned candidates.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <div className="max-h-[600px] w-full overflow-y-auto">
@@ -111,6 +111,17 @@ export function CandidateRoster({ electionId }: CandidateRosterProps) {
                       >
                         <div>
                           <div className="flex items-center gap-2">
+                            <Avatar>
+                              <AvatarImage
+                                src={handlePhotoUrl(
+                                  candidate.imageUrl,
+                                  getCandidateName(candidate)
+                                )}
+                              />
+                              <AvatarFallback>
+                                {getCandidateName(candidate).charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
                             <p className="text-sm leading-none font-medium">
                               {getCandidateName(candidate)}
                             </p>

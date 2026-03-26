@@ -192,7 +192,7 @@ export default function ElectionResults() {
                         className="group relative flex items-center justify-between p-6 transition-colors hover:bg-muted/10"
                       >
                         <div className="flex w-1/3 min-w-[200px] items-center gap-4">
-                          <Avatar>
+                          <Avatar className="h-12 w-12">
                             <AvatarImage
                               src={handlePhotoUrl(
                                 candidate.imageUrl,

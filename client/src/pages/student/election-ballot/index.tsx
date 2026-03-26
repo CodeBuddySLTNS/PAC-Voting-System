@@ -5,6 +5,9 @@ import { useElectionBallot, useSubmitVote } from "@/hooks/use-voting";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import LoadingAnimation from "@/components/loading-animation/loading";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { handlePhotoUrl } from "@/lib/utils";
 
 export default function ElectionBallotForm() {
   const { id } = useParams();
@@ -19,10 +22,7 @@ export default function ElectionBallotForm() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-sm font-medium text-muted-foreground">
-          Loading your ballot...
-        </p>
+        <LoadingAnimation />
       </div>
     );
   }
@@ -163,19 +163,19 @@ export default function ElectionBallotForm() {
                         }`}
                       >
                         <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-background shadow-sm">
-                          {candidate.imageUrl ? (
-                            <img
-                              src={candidate.imageUrl}
-                              alt={candidate.name}
-                              className="h-full w-full object-cover"
+                          <Avatar className="h-full w-full">
+                            <AvatarImage
+                              src={handlePhotoUrl(
+                                candidate.imageUrl,
+                                candidate.name
+                              )}
                             />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-muted text-xl font-bold text-muted-foreground">
-                              {candidate.name.charAt(0)}
-                            </div>
-                          )}
+                            <AvatarFallback>
+                              {candidate.name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
                           {isSelected && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-primary/20 backdrop-blur-[2px]">
+                            <div className="absolute inset-0 flex items-center justify-center bg-primary/20 backdrop-blur-[1px]">
                               <CheckCircle2 className="h-8 w-8 text-primary" />
                             </div>
                           )}

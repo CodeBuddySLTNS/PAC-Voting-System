@@ -6,8 +6,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Trophy, Download, Medal } from "lucide-react";
+import { Trophy, Download } from "lucide-react";
 import { jsPDF } from "jspdf";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { handlePhotoUrl } from "@/lib/utils";
 
 export interface CandidateResult {
   id: number;
@@ -194,17 +196,12 @@ export function WinnersDialog({
                           key={winner.id}
                           className="flex items-center gap-3 rounded-lg border bg-card/50 p-3"
                         >
-                          {winner.imageUrl ? (
-                            <img
-                              src={winner.imageUrl}
-                              alt={winner.name ?? ""}
-                              className="h-12 w-12 rounded-full border-2 border-yellow-500/50 object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-yellow-500/50 bg-yellow-500/10 font-bold text-yellow-600">
-                              <Medal className="h-6 w-6" />
-                            </div>
-                          )}
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={handlePhotoUrl(winner.name)} />
+                            <AvatarFallback>
+                              {winner.name?.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-base font-semibold">
                               {winner.name}

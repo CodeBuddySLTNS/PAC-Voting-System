@@ -175,7 +175,9 @@ export default function AdminDashboard() {
                 stats.recentActivity.map((activity) => (
                   <div key={activity.id} className="flex items-center gap-4">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={handlePhotoUrl(activity?.imageUrl)} />
+                      <AvatarImage
+                        src={handlePhotoUrl(activity?.imageUrl, activity.user)}
+                      />
                       <AvatarFallback className="bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                         {activity.user.charAt(0)}
                       </AvatarFallback>
