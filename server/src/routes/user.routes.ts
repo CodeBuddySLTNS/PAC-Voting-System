@@ -17,8 +17,15 @@ router.patch(
 );
 router.patch(
   "/students/:id",
+  permissions.admin,
   multerUpload.single("image"),
   tryCatch(UserController.updateStudent),
+);
+
+router.patch(
+  "/profile",
+  multerUpload.single("image"),
+  tryCatch(UserController.updateMyProfile),
 );
 
 export default router;

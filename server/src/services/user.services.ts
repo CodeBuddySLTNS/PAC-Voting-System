@@ -80,4 +80,35 @@ export const UserService = {
       },
     });
   },
+
+  updateMyProfile: async (
+    studentId: number,
+    data: { yearLevelId?: string | number },
+    imageFilename?: string,
+  ) => {
+    return prisma.student.update({
+      where: { id: studentId },
+      data: {
+        ...(data.yearLevelId && { yearLevelId: Number(data.yearLevelId) }),
+        ...(imageFilename && { imageUrl: imageFilename }),
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        middleName: true,
+        lastName: true,
+        isActive: true,
+        imageUrl: true,
+        departmentId: true,
+        yearLevelId: true,
+        department: {
+          select: { id: true, name: true, acronym: true },
+        },
+        yearLevel: {
+          select: { id: true, year: true },
+        },
+      },
+    });
+  },
 };

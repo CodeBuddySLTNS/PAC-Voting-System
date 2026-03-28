@@ -1,17 +1,19 @@
+import { useState } from "react";
 import { useMainStore } from "../../store";
 import ActiveElections from "./components/active-elections/active-elections";
 import PastElections from "./components/past-elections/past-elections";
 import { Card, CardContent } from "../../components/ui/card";
-import { Ticket, AlertCircle, Camera } from "lucide-react";
+import { Ticket, AlertCircle, Camera, Pencil } from "lucide-react";
 import { useStudentElections } from "@/hooks/use-voting";
-import { toast } from "sonner";
 import LoadingAnimation from "@/components/loading-animation/loading";
 import { cn, handlePhotoUrl } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import EditProfileDialog from "./components/edit-profile-dialog";
 
 export default function StudentDashboard() {
   const user = useMainStore((state) => state.user);
   const { data: elections, isLoading, error } = useStudentElections();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -103,10 +105,20 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
 
-          {/* Update Profile Picture UI */}
+          {/* Profile Details UI */}
           <Card className="group relative overflow-hidden border-none p-0 shadow-sm dark:bg-zinc-900/40">
             <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-secondary/5 opacity-0 transition-opacity group-hover:opacity-100" />
             <CardContent className="relative z-10 flex flex-col items-center justify-center p-6 text-center">
+              <div className="absolute right-4 top-4">
+                <button
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/20"
+                  onClick={() => setIsEditDialogOpen(true)}
+                  title="Edit Profile"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+              </div>
+
               <div className="relative mb-4">
                 <Avatar className="h-20 w-20">
                   <AvatarImage
@@ -115,24 +127,34 @@ export default function StudentDashboard() {
                       `${user?.firstName} ${user?.lastName}`
                     )}
                   />
-                  <AvatarFallback>
+                  <AvatarFallback className="text-xl">
                     {user?.firstName?.charAt(0) || "?"}
                   </AvatarFallback>
                 </Avatar>
 
                 <button
                   className="absolute right-0 bottom-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform hover:scale-105"
-                  onClick={() =>
-                    toast.info("Profile picture upload coming soon!")
-                  }
+                  onClick={() => setIsEditDialogOpen(true)}
+                  title="Change Photo"
                 >
                   <Camera className="h-4 w-4" />
                 </button>
               </div>
-              <h3 className="text-md mb-1 font-semibold">Profile Picture</h3>
-              <p className="px-2 text-xs text-zinc-500 dark:text-zinc-400">
-                Update your photo to personalize your account.
-              </p>
+              <h3 className="mb-1 text-lg font-semibold">
+                {user?.firstName} {user?.lastName}
+              </h3>
+              
+              <div className="mt-2 space-y-1 text-sm text-zinc-500 dark:text-zinc-400">
+                <p>
+                  <span className="font-medium text-foreground">Department: </span>
+                  {user?.department?.name || "Not set"}
+                  {user?.department?.acronym ? ` (${user?.department?.acronym})` : ""}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Year Level: </span>
+                  {user?.yearLevel?.year || "Not set"}
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -143,6 +165,11 @@ export default function StudentDashboard() {
           <PastElections elections={elections || []} />
         </div>
       </div>
+
+      <EditProfileDialog 
+        open={isEditDialogOpen} 
+        onOpenChange={setIsEditDialogOpen} 
+      />
     </div>
   );
 }

@@ -91,3 +91,45 @@ export function useUpdateStudent() {
     },
   });
 }
+
+export function useUpdateMyProfile() {
+  const queryClient = useQueryClient();
+  const setUser = useMainStore((state) => state.setUser);
+  const user = useMainStore((state) => state.user);
+
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const token = useMainStore.getState().token;
+      const res = await axiosInstance.patch("/api/users/profile", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+      return res.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+      
+      // manually update zustand store user
+      if (user && data.student) {
+        setUser({
+          ...user,
+          ...data.student,
+        });
+      }
+      toast.success("Profile updated successfully");
+    },
+    onError: (error) => {
+      if (isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message || "Failed to update profile"
+        );
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    },
+  });
+}

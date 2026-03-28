@@ -52,4 +52,24 @@ export const UserController = {
       throw error;
     }
   },
+
+  updateMyProfile: async (req: Request, res: Response) => {
+    const user = res.locals.user;
+    if (!user || user.role === "admin" || !user.id) {
+      res.status(403).json({ message: "Only students can update their profile this way" });
+      return;
+    }
+    
+    // We already know user.id is the studentId because it's a student finding their own profile
+    const studentId = user.id;
+
+    const imageFilename = req.file?.filename;
+    
+    try {
+      const student = await UserService.updateMyProfile(studentId, req.body, imageFilename);
+      res.status(200).json({ message: "Profile updated successfully", student });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to update profile", error: error.message });
+    }
+  },
 };

@@ -7,6 +7,17 @@ export interface User {
   email: string;
   isActive: boolean;
   imageUrl?: string;
+  departmentId?: number;
+  yearLevelId?: number;
+  department?: {
+    id: number;
+    name: string;
+    acronym?: string;
+  };
+  yearLevel?: {
+    id: number;
+    year: string;
+  };
 }
 
 interface MainStore {

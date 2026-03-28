@@ -158,10 +158,14 @@ export const AuthService = {
           middleName: true,
           lastName: true,
           isActive: true,
+          imageUrl: true,
+          departmentId: true,
+          yearLevelId: true,
           department: {
             select: {
               id: true,
               name: true,
+              acronym: true,
             },
           },
           yearLevel: {
