@@ -40,7 +40,6 @@ export function WinnersDialog({
   const handleExportPDF = () => {
     const doc = new jsPDF();
 
-    // Add Election Name Header
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text(`${electionName} - Official Winners`, 14, 20);
@@ -70,7 +69,6 @@ export function WinnersDialog({
         if (candidate.voteCount === 0) continue;
 
         if (candidate.voteCount !== previousVotes) {
-          // If we already filled our max slots, break.
           if (slotsFilled >= position.maxVotes) break;
           currentRank = slotsFilled + 1;
           previousVotes = candidate.voteCount;
@@ -82,7 +80,7 @@ export function WinnersDialog({
 
       if (winners.length === 0) return;
 
-      // Check page boundary
+      // check page boundary
       if (yPos > 270) {
         doc.addPage();
         yPos = 20;
@@ -165,7 +163,6 @@ export function WinnersDialog({
                 if (candidate.voteCount === 0) continue;
 
                 if (candidate.voteCount !== previousVotes) {
-                  // If we already filled our max slots, break.
                   if (slotsFilled >= position.maxVotes) break;
                   currentRank = slotsFilled + 1;
                   previousVotes = candidate.voteCount;

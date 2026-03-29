@@ -9,7 +9,7 @@ interface AuthLayoutProps {
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      {/* Left side - Branding (Hidden on mobile) */}
+      {/* left side - hidden on mobile */}
       <div className="relative hidden flex-col bg-primary p-10 text-primary-foreground lg:flex dark:bg-black">
         <div className="absolute inset-0 bg-linear-to-t from-primary/80 to-primary mix-blend-multiply" />
 
@@ -26,7 +26,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           <span className="text-xl font-bold tracking-tight">PAC SGO</span>
         </div>
 
-        {/* Large PAC Logo centered vertically and horizontally */}
+        {/* PAC logo*/}
         <div className="relative z-10 flex flex-1 items-center justify-center opacity-90 mix-blend-screen">
           <img
             src="/images/pac-logo.svg"
@@ -49,11 +49,10 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         </div>
       </div>
 
-      {/* Right side - Form */}
+      {/* right side - form */}
       <div className="flex items-center justify-center p-6 sm:p-8 lg:p-12">
-        <div className="mx-auto flex w-full max-w-[360px] sm:max-w-[400px] flex-col justify-center space-y-6">
-          {/* Mobile Logo (Hidden on larger screens) */}
-          <div className="flex justify-center mb-2 lg:hidden">
+        <div className="mx-auto flex w-full max-w-[360px] flex-col justify-center space-y-6 sm:max-w-[400px]">
+          <div className="mb-2 flex justify-center lg:hidden">
             <img
               src="/images/pac-logo.svg"
               alt="PAC Logo"
@@ -62,7 +61,9 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           </div>
 
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{title}</h1>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              {title}
+            </h1>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
 

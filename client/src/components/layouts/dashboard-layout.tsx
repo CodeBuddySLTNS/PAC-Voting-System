@@ -89,7 +89,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-zinc-50 font-sans text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
-      {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 z-40 animate-in bg-black/50 backdrop-blur-sm transition-all fade-in lg:hidden"
@@ -163,7 +162,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between overflow-hidden border-b border-primary/20 bg-primary px-4 text-primary-foreground sm:px-6 lg:px-8 dark:border-foreground/10 dark:bg-black dark:text-white">
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-primary/80 to-primary mix-blend-multiply" />
