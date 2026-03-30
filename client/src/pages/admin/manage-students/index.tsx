@@ -4,11 +4,21 @@ import {
   useToggleStudentStatus,
   type Student,
 } from "@/hooks/use-students";
+import { useDepartments, useYearLevels } from "@/hooks/use-config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { handlePhotoUrl } from "@/lib/utils";
 import { Search, ChevronLeft, ChevronRight, Edit } from "lucide-react";
 import EditStudentDialog from "./components/edit-student-dialog";
 
@@ -17,8 +27,12 @@ const ITEMS_PER_PAGE = 10;
 export default function ManageStudents() {
   const { data: students, isLoading } = useStudents();
   const toggleStatusMutation = useToggleStudentStatus();
+  const { data: departments } = useDepartments();
+  const { data: yearLevels } = useYearLevels();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+  const [selectedYearLevel, setSelectedYearLevel] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
@@ -32,13 +46,24 @@ export default function ManageStudents() {
       const email = student.email.toLowerCase();
       const department = student.department?.acronym.toLowerCase() || "";
 
-      return (
+      const matchesSearch =
         fullName.includes(query) ||
         email.includes(query) ||
-        department.includes(query)
-      );
+        department.includes(query);
+
+      const matchesDepartment =
+        selectedDepartment === "all" ||
+        student.departmentId?.toString() === selectedDepartment ||
+        student.department?.id.toString() === selectedDepartment;
+
+      const matchesYearLevel =
+        selectedYearLevel === "all" ||
+        student.yearLevelId?.toString() === selectedYearLevel ||
+        student.yearLevel?.id.toString() === selectedYearLevel;
+
+      return matchesSearch && matchesDepartment && matchesYearLevel;
     });
-  }, [students, searchQuery]);
+  }, [students, searchQuery, selectedDepartment, selectedYearLevel]);
 
   const totalPages = Math.max(
     1,
@@ -62,18 +87,62 @@ export default function ManageStudents() {
           </p>
         </div>
 
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search students..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search students..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+
+          <div className="flex w-full gap-2">
+            <Select
+              value={selectedDepartment}
+              onValueChange={(val) => {
+                setSelectedDepartment(val);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="flex-1 sm:w-[50px]">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Departments</SelectItem>
+                {departments?.map((dept) => (
+                  <SelectItem key={dept.id} value={dept.id.toString()}>
+                    {dept.acronym}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={selectedYearLevel}
+              onValueChange={(val) => {
+                setSelectedYearLevel(val);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Year Level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Years</SelectItem>
+                {yearLevels?.map((yl) => (
+                  <SelectItem key={yl.id} value={yl.id.toString()}>
+                    {yl.year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -120,9 +189,28 @@ export default function ManageStudents() {
                       key={student.id}
                       className="transition-colors hover:bg-muted/50"
                     >
-                      <td className="px-6 py-4 font-medium">
-                        {student.lastName}, {student.firstName}{" "}
-                        {student.middleName ? `${student.middleName[0]}.` : ""}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9 border">
+                            <AvatarImage
+                              src={handlePhotoUrl(
+                                student.imageUrl,
+                                `${student.firstName} ${student.lastName}`
+                              )}
+                              alt={student.firstName}
+                            />
+                            <AvatarFallback className="text-xs font-semibold uppercase">
+                              {student.firstName[0]}
+                              {student.lastName[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">
+                            {student.lastName}, {student.firstName}{" "}
+                            {student.middleName
+                              ? `${student.middleName[0]}.`
+                              : ""}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-muted-foreground">
                         {student.email}
