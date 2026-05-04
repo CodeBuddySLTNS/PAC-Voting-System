@@ -47,8 +47,11 @@ export const AuthController = {
 
   verifyOtp: async (req: Request, res: Response) => {
     const { email, otp } = req.body;
-    const user = (await AuthService.verifySignupOtp(email, otp)) as unknown as User;
-    
+    const user = (await AuthService.verifySignupOtp(
+      email,
+      otp,
+    )) as unknown as User;
+
     user.studentId = user.id;
 
     const { refreshToken, accessToken } = generateTokens(user as User);

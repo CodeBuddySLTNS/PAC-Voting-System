@@ -10,6 +10,7 @@ import { Trophy, Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { handlePhotoUrl } from "@/lib/utils";
+import type { ElectionResults } from "@/hooks/use-elections";
 
 export interface CandidateResult {
   id: number;
@@ -28,21 +29,16 @@ export interface PositionResult {
 
 interface WinnersDialogProps {
   results: PositionResult[];
-  electionName: string;
-  isElectionActive: boolean;
+  election: ElectionResults["election"];
 }
 
-export function WinnersDialog({
-  results,
-  electionName,
-  isElectionActive,
-}: WinnersDialogProps) {
+export function WinnersDialog({ results, election }: WinnersDialogProps) {
   const handleExportPDF = () => {
     const doc = new jsPDF();
 
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text(`${electionName} - Official Winners`, 14, 20);
+    doc.text(`${election.name} - Official Winners`, 14, 20);
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
@@ -53,7 +49,7 @@ export function WinnersDialog({
 
     if (results.length === 0) {
       doc.text("No results available yet.", 14, yPos);
-      doc.save(`${electionName.replace(/\s+/g, "_")}_Winners.pdf`);
+      doc.save(`${election.name.replace(/\s+/g, "_")}_Winners.pdf`);
       return;
     }
 
@@ -107,7 +103,7 @@ export function WinnersDialog({
       yPos += 6;
     });
 
-    doc.save(`${electionName.replace(/\s+/g, "_")}_Winners.pdf`);
+    doc.save(`${election.name.replace(/\s+/g, "_")}_Winners.pdf`);
   };
 
   return (
@@ -116,9 +112,9 @@ export function WinnersDialog({
         <Button
           variant="default"
           className="cursor-pointer gap-2 shadow-sm"
-          disabled={isElectionActive}
+          disabled={new Date() < new Date(election.endTime)}
           title={
-            isElectionActive
+            new Date() < new Date(election.endTime)
               ? "Winners cannot be viewed while election is active"
               : "View official winners"
           }
@@ -132,7 +128,7 @@ export function WinnersDialog({
             <DialogTitle className="flex items-center gap-2 text-2xl">
               Official Winners
             </DialogTitle>
-            <p className="text-sm text-muted-foreground">{electionName}</p>
+            <p className="text-sm text-muted-foreground">{election.name}</p>
           </div>
           <Button
             variant="outline"
@@ -194,7 +190,9 @@ export function WinnersDialog({
                           className="flex items-center gap-3 rounded-lg border bg-card/50 p-3"
                         >
                           <Avatar className="h-12 w-12">
-                            <AvatarImage src={handlePhotoUrl(winner.name)} />
+                            <AvatarImage
+                              src={handlePhotoUrl(winner.imageUrl, winner.name)}
+                            />
                             <AvatarFallback>
                               {winner.name?.charAt(0).toUpperCase()}
                             </AvatarFallback>

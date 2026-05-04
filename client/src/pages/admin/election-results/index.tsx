@@ -67,11 +67,7 @@ export default function ElectionResults() {
           </Button>
 
           {user?.adminId && (
-            <WinnersDialog
-              results={results}
-              electionName={election.name}
-              isElectionActive={election.isActive}
-            />
+            <WinnersDialog results={results} election={election} />
           )}
         </div>
       </div>

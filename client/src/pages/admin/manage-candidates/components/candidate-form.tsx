@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,8 +26,10 @@ import {
   usePositions,
   useCreatePosition,
   useSearchStudents,
+  useDepartments,
+  useYearLevels,
 } from "@/hooks/use-config";
-import { UserPlus, Search, Plus } from "lucide-react";
+import { UserPlus, Search, Plus, ImagePlus, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -36,7 +38,8 @@ const schema = z.object({
   partyList: z.string().optional(),
   studentId: z.number().optional(),
   name: z.string().optional(),
-  imageUrl: z.string().optional(),
+  departmentId: z.number().optional(),
+  yearLevelId: z.number().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -55,6 +58,8 @@ interface CandidateFormProps {
 export function CandidateForm({ electionId }: CandidateFormProps) {
   const createMutation = useCreateCandidate();
   const { data: positions } = usePositions();
+  const { data: departments } = useDepartments();
+  const { data: yearLevels } = useYearLevels();
   const createPositionMutation = useCreatePosition();
 
   const [isAddingPosition, setIsAddingPosition] = useState(false);
@@ -71,6 +76,9 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
     useSearchStudents(debouncedQuery);
   const [selectedStudent, setSelectedStudent] =
     useState<StudentSearchInfo | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -78,7 +86,8 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
       positionId: 0,
       partyList: "",
       name: "",
-      imageUrl: "",
+      departmentId: 0,
+      yearLevelId: 0,
     },
   });
 
@@ -86,6 +95,18 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
     control: form.control,
     name: "name",
   });
+
+  const watchedPositionId = useWatch({
+    control: form.control,
+    name: "positionId",
+  });
+
+  // show dept/year fields only when the selected position is "representative"
+  const isRepresentative = positions?.some(
+    (p) =>
+      p.positionId === watchedPositionId &&
+      p.title.toLowerCase().includes("representative")
+  );
 
   const onSubmit = (data: FormValues) => {
     if (!electionId) return;
@@ -100,7 +121,15 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
             ? selectedStudent.id
             : undefined,
         name: activeTab === "custom" ? data.name : undefined,
-        imageUrl: activeTab === "custom" ? data.imageUrl : undefined,
+        departmentId:
+          activeTab === "custom" && isRepresentative && data.departmentId
+            ? data.departmentId
+            : undefined,
+        yearLevelId:
+          activeTab === "custom" && isRepresentative && data.yearLevelId
+            ? data.yearLevelId
+            : undefined,
+        image: activeTab === "custom" && imageFile ? imageFile : undefined,
       },
       {
         onSuccess: () => {
@@ -110,9 +139,26 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
           });
           setSearchQuery("");
           setSelectedStudent(null);
+          setImageFile(null);
+          setImagePreview(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
         },
       }
     );
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const clearImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleAddPosition = () => {
@@ -358,13 +404,101 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
                 />
                 <FieldError errors={[form.formState.errors.name]} />
               </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field>
+                  <FieldLabel>Department{!isRepresentative && " (Optional)"}</FieldLabel>
+                  <Controller
+                    control={form.control}
+                    name="departmentId"
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(val) => field.onChange(Number(val))}
+                        value={field.value ? String(field.value) : ""}
+                        disabled={createMutation.isPending}
+                      >
+                        <SelectTrigger
+                          data-invalid={!!form.formState.errors.departmentId}
+                          className="w-full"
+                        >
+                          <SelectValue placeholder="Select..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departments?.map((dept) => (
+                            <SelectItem key={dept.id} value={String(dept.id)}>
+                              {dept.acronym}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <FieldError errors={[form.formState.errors.departmentId]} />
+                </Field>
+                <Field>
+                  <FieldLabel>Year Level{!isRepresentative && " (Optional)"}</FieldLabel>
+                  <Controller
+                    control={form.control}
+                    name="yearLevelId"
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(val) => field.onChange(Number(val))}
+                        value={field.value ? String(field.value) : ""}
+                        disabled={createMutation.isPending}
+                      >
+                        <SelectTrigger
+                          data-invalid={!!form.formState.errors.yearLevelId}
+                          className="w-full"
+                        >
+                          <SelectValue placeholder="Select..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {yearLevels?.map((yl) => (
+                            <SelectItem key={yl.id} value={String(yl.id)}>
+                              {yl.year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <FieldError errors={[form.formState.errors.yearLevelId]} />
+                </Field>
+              </div>
               <Field>
-                <FieldLabel>Image URL (Optional)</FieldLabel>
-                <Input
-                  placeholder="https://..."
-                  {...form.register("imageUrl")}
+                <FieldLabel>Photo (Optional)</FieldLabel>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={handleImageChange}
                   disabled={createMutation.isPending}
+                  className="hidden"
+                  id="candidate-image-upload"
                 />
+                {imagePreview ? (
+                  <div className="relative w-fit">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-28 w-28 rounded-lg border object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={clearImage}
+                      className="absolute -top-2 -right-2 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-destructive text-white shadow-sm transition-transform hover:scale-110"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="candidate-image-upload"
+                    className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-muted-foreground/30 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+                  >
+                    <ImagePlus className="h-6 w-6" />
+                    <span className="text-[10px] font-medium">Upload</span>
+                  </label>
+                )}
               </Field>
             </TabsContent>
           </Tabs>
@@ -381,7 +515,11 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
               disabled={
                 createMutation.isPending ||
                 (activeTab === "student" && !selectedStudent) ||
-                (activeTab === "custom" && !watchedName)
+                (activeTab === "custom" &&
+                  (!watchedName ||
+                    (isRepresentative &&
+                      (!form.watch("departmentId") ||
+                        !form.watch("yearLevelId")))))
               }
               className="w-full cursor-pointer gap-2 py-6 text-base"
             >

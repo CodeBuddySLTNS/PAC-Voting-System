@@ -8,6 +8,7 @@ import { CandidateController } from "../controllers/candidate.controllers";
 import { validate } from "../middlewares/validate";
 import authenticate from "../middlewares/authentication";
 import { permissions } from "../middlewares/permissions";
+import { multerUpload } from "../middlewares/multer-upload";
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.get(
 );
 router.post(
   "/",
+  multerUpload.single("image"),
   validate(createCandidateSchema),
   tryCatch(CandidateController.createCandidate),
 );

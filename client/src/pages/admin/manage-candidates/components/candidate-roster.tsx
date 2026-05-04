@@ -64,6 +64,20 @@ export function CandidateRoster({ electionId }: CandidateRosterProps) {
       });
     });
 
+    // sort representative groups by department → year level
+    groups.forEach((g) => {
+      if (g.title.toLowerCase().includes("representative")) {
+        g.candidates.sort((a, b) => {
+          const deptA = (a.department ?? a.student?.department)?.name ?? "";
+          const deptB = (b.department ?? b.student?.department)?.name ?? "";
+          if (deptA !== deptB) return deptA.localeCompare(deptB);
+          const ylA = (a.yearLevel ?? a.student?.yearLevel)?.year ?? "";
+          const ylB = (b.yearLevel ?? b.student?.yearLevel)?.year ?? "";
+          return ylA.localeCompare(ylB);
+        });
+      }
+    });
+
     return groups;
   }, [candidates, positions]);
 
@@ -129,13 +143,29 @@ export function CandidateRoster({ electionId }: CandidateRosterProps) {
                               <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
                             )}
                           </div>
-                          {candidate.partyList && (
-                            <div className="mt-1.5 flex items-center">
-                              <span className="rounded-sm bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground shadow-xs outline-1 outline-border">
-                                {candidate.partyList}
-                              </span>
-                            </div>
-                          )}
+                          {(() => {
+                            const dept = candidate.department ?? candidate.student?.department;
+                            const yl = candidate.yearLevel ?? candidate.student?.yearLevel;
+                            return (candidate.partyList || dept || yl) && (
+                              <div className="mt-1.5 flex items-center gap-1.5">
+                                {candidate.partyList && (
+                                  <span className="rounded-sm bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground shadow-xs outline-1 outline-border">
+                                    {candidate.partyList}
+                                  </span>
+                                )}
+                                {dept && (
+                                  <span className="rounded-sm bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                                    {dept.acronym}
+                                  </span>
+                                )}
+                                {yl && (
+                                  <span className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                                    {yl.year}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         <Button

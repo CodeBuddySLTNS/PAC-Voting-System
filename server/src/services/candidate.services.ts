@@ -8,6 +8,8 @@ export const CandidateService = {
       where: { electionId },
       include: {
         position: true,
+        department: true,
+        yearLevel: true,
         student: {
           select: {
             id: true,
@@ -50,6 +52,8 @@ export const CandidateService = {
         studentId: data.studentId ?? null,
         name: data.name ?? null,
         partyList: data.partyList ?? null,
+        departmentId: data.departmentId ?? null,
+        yearLevelId: data.yearLevelId ?? null,
         imageUrl: data.imageUrl ?? null,
       },
       include: {
