@@ -21,7 +21,7 @@ export interface CandidateResult {
 }
 
 export interface PositionResult {
-  positionId: number;
+  positionId: number | string;
   title: string;
   maxVotes: number;
   candidates: CandidateResult[];

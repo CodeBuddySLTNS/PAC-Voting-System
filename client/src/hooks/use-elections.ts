@@ -125,7 +125,7 @@ export interface ElectionResults {
     totalVoters: number;
   };
   results: {
-    positionId: number;
+    positionId: number | string;
     title: string;
     maxVotes: number;
     candidates: {
