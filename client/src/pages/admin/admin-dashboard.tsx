@@ -127,19 +127,24 @@ export default function AdminDashboard() {
                 config={chartConfig}
                 className="mx-auto max-h-[250px] w-full"
               >
-                <BarChart data={stats.electionEngagement}>
+                <BarChart 
+                  data={stats.electionEngagement} 
+                  margin={{ left: -20, right: 0, top: 10, bottom: 20 }}
+                >
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey="name"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={10}
+                    interval={0}
                     tick={<CustomXAxisTick />}
                   />
                   <YAxis
                     tickLine={false}
                     axisLine={false}
                     tickMargin={10}
+                    width={35}
                     allowDecimals={false}
                   />
                   <ChartTooltip
