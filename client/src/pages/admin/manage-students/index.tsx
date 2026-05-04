@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   useStudents,
   useToggleStudentStatus,
@@ -31,10 +31,23 @@ export default function ManageStudents() {
   const { data: yearLevels } = useYearLevels();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
-  const [selectedYearLevel, setSelectedYearLevel] = useState<string>("all");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [selectedYearLevel, setSelectedYearLevel] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+
+  // Initialize defaults to the first available item instead of "all"
+  useEffect(() => {
+    if (departments && departments.length > 0 && selectedDepartment === "") {
+      setSelectedDepartment(departments[0].id.toString());
+    }
+  }, [departments, selectedDepartment]);
+
+  useEffect(() => {
+    if (yearLevels && yearLevels.length > 0 && selectedYearLevel === "") {
+      setSelectedYearLevel(yearLevels[0].id.toString());
+    }
+  }, [yearLevels, selectedYearLevel]);
 
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -53,11 +66,13 @@ export default function ManageStudents() {
 
       const matchesDepartment =
         selectedDepartment === "all" ||
+        selectedDepartment === "" ||
         student.departmentId?.toString() === selectedDepartment ||
         student.department?.id.toString() === selectedDepartment;
 
       const matchesYearLevel =
         selectedYearLevel === "all" ||
+        selectedYearLevel === "" ||
         student.yearLevelId?.toString() === selectedYearLevel ||
         student.yearLevel?.id.toString() === selectedYearLevel;
 
