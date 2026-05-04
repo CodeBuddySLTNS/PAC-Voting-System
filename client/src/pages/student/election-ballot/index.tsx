@@ -72,6 +72,12 @@ export default function ElectionBallotForm() {
   };
 
   const totalSelections = Object.values(selections).flat().length;
+  const allPositionsFilled = ballot.every(
+    (pos) => (selections[pos.positionId]?.length ?? 0) >= 1
+  );
+  const remainingPositions = ballot.filter(
+    (pos) => (selections[pos.positionId]?.length ?? 0) < 1
+  ).length;
 
   const handleSubmit = () => {
     const votes = [];
@@ -81,7 +87,7 @@ export default function ElectionBallotForm() {
       }
     }
 
-    if (votes.length === 0) return; // Disallow empty submission implicitly
+    if (votes.length === 0) return;
 
     submitVoteMutation.mutate({ electionId, votes });
   };
@@ -184,11 +190,9 @@ export default function ElectionBallotForm() {
                           <h3 className="font-semibold text-foreground">
                             {candidate.name}
                           </h3>
-                          {candidate.partyList && (
-                            <p className="text-xs text-muted-foreground">
-                              {candidate.partyList}
-                            </p>
-                          )}
+                          <p className="text-xs text-muted-foreground">
+                            {candidate.partyList || "Independent"}
+                          </p>
                           {(candidate.department || candidate.yearLevel) && (
                             <div className="mt-1 flex items-center justify-center gap-1">
                               {candidate.department && (
@@ -213,13 +217,18 @@ export default function ElectionBallotForm() {
           })}
         </div>
 
-        <div className="sticky bottom-2 z-10 mx-1 flex items-center justify-between gap-2 rounded-2xl border bg-background/90 p-3 shadow-lg backdrop-blur-md sm:bottom-4 sm:mx-0 sm:p-4">
+        <div className="sticky bottom-0 z-10 flex items-center justify-between gap-2 rounded-2xl border bg-background/90 p-3 shadow-lg backdrop-blur-md sm:p-4">
           <div className="text-xs font-medium sm:text-sm">
             <span className="hidden text-muted-foreground sm:inline">
               Total Selections:{" "}
             </span>
             <span className="text-muted-foreground sm:hidden">Selected: </span>
             <span className="text-primary">{totalSelections}</span>
+            {!allPositionsFilled && (
+              <span className="ml-2 text-muted-foreground">
+                · {remainingPositions} position{remainingPositions > 1 ? "s" : ""} left
+              </span>
+            )}
           </div>
           <div className="flex gap-2 sm:gap-3">
             <Button
@@ -234,7 +243,7 @@ export default function ElectionBallotForm() {
               size="sm"
               className="hidden shadow-md shadow-primary/20 sm:flex"
               onClick={handleSubmit}
-              disabled={totalSelections === 0 || submitVoteMutation.isPending}
+              disabled={!allPositionsFilled || submitVoteMutation.isPending}
             >
               {submitVoteMutation.isPending ? "Submitting..." : "Submit Ballot"}
             </Button>
@@ -244,7 +253,7 @@ export default function ElectionBallotForm() {
               size="sm"
               className="flex shadow-md shadow-primary/20 sm:hidden"
               onClick={handleSubmit}
-              disabled={totalSelections === 0 || submitVoteMutation.isPending}
+              disabled={!allPositionsFilled || submitVoteMutation.isPending}
             >
               {submitVoteMutation.isPending ? "Waiting..." : "Submit"}
             </Button>

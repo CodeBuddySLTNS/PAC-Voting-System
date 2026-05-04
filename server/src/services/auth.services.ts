@@ -129,6 +129,8 @@ export const AuthService = {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      departmentId: user.departmentId,
+      yearLevelId: user.yearLevelId,
     };
   },
 

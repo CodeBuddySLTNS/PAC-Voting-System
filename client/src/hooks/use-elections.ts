@@ -134,6 +134,8 @@ export interface ElectionResults {
       partyList: string | null;
       imageUrl: string | null;
       voteCount: number;
+      department?: { id: number; name: string; acronym: string } | null;
+      yearLevel?: { id: number; year: string } | null;
     }[];
   }[];
 }

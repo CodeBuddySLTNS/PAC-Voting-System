@@ -134,7 +134,9 @@ export const ElectionService = {
       where: { electionId: id },
       include: {
         position: true,
-        student: true,
+        student: { include: { department: true, yearLevel: true } },
+        department: true,
+        yearLevel: true,
         _count: { select: { votes: true } },
       },
     });
@@ -149,6 +151,8 @@ export const ElectionService = {
           candidates: [],
         });
       }
+      const dept = c.department ?? (c.student as any)?.department;
+      const yl = c.yearLevel ?? (c.student as any)?.yearLevel;
       positionsMap.get(c.positionId).candidates.push({
         id: c.candidateId,
         name: c.student
@@ -157,6 +161,8 @@ export const ElectionService = {
         partyList: c.partyList,
         imageUrl: c.imageUrl,
         voteCount: c._count.votes,
+        department: dept ? { id: dept.id, name: dept.name, acronym: dept.acronym } : null,
+        yearLevel: yl ? { id: yl.id, year: yl.year } : null,
       });
     });
 

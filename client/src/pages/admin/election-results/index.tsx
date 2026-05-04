@@ -41,7 +41,33 @@ export default function ElectionResults() {
     );
   }
 
-  const { election, stats, results } = data;
+  const { election, stats, results: rawResults } = data;
+
+  // students only see their own dept/year in representative positions
+  const isStudent = !user?.adminId;
+  const results = isStudent
+    ? rawResults
+        .map((pos) => {
+          if (!pos.title.toLowerCase().includes("representative")) return pos;
+          return {
+            ...pos,
+            candidates: pos.candidates.filter(
+              (c) =>
+                c.department?.id === user?.departmentId &&
+                c.yearLevel?.id === user?.yearLevelId
+            ),
+          };
+        })
+        .filter((pos) => {
+          if (
+            pos.title.toLowerCase().includes("representative") &&
+            pos.candidates.length === 0
+          ) {
+            return false;
+          }
+          return true;
+        })
+    : rawResults;
 
   return (
     <div className="animate-in space-y-6 pb-8 duration-500 fade-in slide-in-from-bottom-4">
@@ -210,6 +236,20 @@ export default function ElectionResults() {
                             <p className="text-xs text-muted-foreground">
                               {candidate.partyList || "Independent"}
                             </p>
+                            {(candidate.department || candidate.yearLevel) && (
+                              <div className="mt-1 flex items-center gap-1">
+                                {candidate.department && (
+                                  <span className="rounded-sm bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                                    {candidate.department.acronym}
+                                  </span>
+                                )}
+                                {candidate.yearLevel && (
+                                  <span className="rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                                    {candidate.yearLevel.year}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
 
