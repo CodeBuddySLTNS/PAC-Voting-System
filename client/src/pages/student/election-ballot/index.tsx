@@ -87,7 +87,7 @@ export default function ElectionBallotForm() {
   };
 
   return (
-    <div className="container mx-auto px-2 py-4 sm:p-0 sm:pt-2">
+    <div className="container mx-auto px-2 pt-4 sm:p-0 sm:pt-2">
       <div className="mx-auto max-w-4xl animate-in space-y-8 fade-in slide-in-from-bottom-4">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -188,6 +188,20 @@ export default function ElectionBallotForm() {
                             <p className="text-xs text-muted-foreground">
                               {candidate.partyList}
                             </p>
+                          )}
+                          {(candidate.department || candidate.yearLevel) && (
+                            <div className="mt-1 flex items-center justify-center gap-1">
+                              {candidate.department && (
+                                <span className="rounded-sm bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                                  {candidate.department.acronym}
+                                </span>
+                              )}
+                              {candidate.yearLevel && (
+                                <span className="rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                                  {candidate.yearLevel.year}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
                       </button>

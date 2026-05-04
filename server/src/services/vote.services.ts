@@ -73,22 +73,16 @@ export const VoteService = {
       throw new CustomError("You have already voted in this election", 403);
     }
 
-    // Positions that apply to this student
-    // global positions OR non-global but matches student department. Wait, we don't have department mapping on positions...
-    // Let's check candidate mapping. A student can vote for any candidate in a global position.
-    // For local positions, candidates should theoretically belong to the same department as the voting student?
-    // Let's check how the schema maps Candidates to local departments in PAC Voting System.
-    // The Candidate has `studentId` which relates to the student running, meaning Candidate -> Student -> departmentId
-    // If it's a local position, we only show candidates from the SAME department as the voter.
-
     // Fetch all positions
     const positions = await prisma.position.findMany();
 
-    // Fetch candidates for this election
+    // fetch candidates for this election
     const candidates = await prisma.candidate.findMany({
       where: { electionId },
       include: {
         position: true,
+        department: true,
+        yearLevel: true,
         student: {
           select: {
             id: true,
@@ -96,39 +90,64 @@ export const VoteService = {
             middleName: true,
             lastName: true,
             departmentId: true,
+            yearLevelId: true,
+            department: true,
+            yearLevel: true,
           },
         },
       },
     });
 
     const ballotPositions = [];
+    const isRep = (title: string) =>
+      title.toLowerCase().includes("representative");
 
     for (const position of positions) {
-      // Find candidates for this position
+      // find candidates for this position
       let positionCandidates = candidates.filter(
         (c) => c.positionId === position.positionId,
       );
 
       if (!position.isGlobal) {
-        // Filter out candidates that do not belong to the voter's department
-        positionCandidates = positionCandidates.filter(
-          (c) => c.student && c.student.departmentId === student.departmentId,
-        );
+        // filter out candidates that do not belong to the voter's department
+        positionCandidates = positionCandidates.filter((c) => {
+          const deptId = c.departmentId ?? c.student?.departmentId;
+          return deptId === student.departmentId;
+        });
+      }
+
+      // for representative positions, only show candidates matching voter's dept + year
+      if (isRep(position.title)) {
+        positionCandidates = positionCandidates.filter((c) => {
+          const deptId = c.departmentId ?? c.student?.departmentId;
+          const ylId = c.yearLevelId ?? c.student?.yearLevelId;
+          return (
+            deptId === student.departmentId && ylId === student.yearLevelId
+          );
+        });
       }
 
       if (positionCandidates.length > 0) {
         ballotPositions.push({
           ...position,
-          candidates: positionCandidates.map((c) => ({
-            id: c.candidateId,
-            name:
-              c.name ||
-              (c.student
-                ? `${c.student.firstName} ${c.student.lastName}`
-                : "Unknown"),
-            partyList: c.partyList,
-            imageUrl: c.imageUrl,
-          })),
+          candidates: positionCandidates.map((c) => {
+            const dept = c.department ?? c.student?.department;
+            const yl = c.yearLevel ?? c.student?.yearLevel;
+            return {
+              id: c.candidateId,
+              name:
+                c.name ||
+                (c.student
+                  ? `${c.student.firstName} ${c.student.lastName}`
+                  : "Unknown"),
+              partyList: c.partyList,
+              imageUrl: c.imageUrl,
+              department: dept
+                ? { id: dept.id, name: dept.name, acronym: dept.acronym }
+                : null,
+              yearLevel: yl ? { id: yl.id, year: yl.year } : null,
+            };
+          }),
         });
       }
     }

@@ -31,6 +31,8 @@ export interface Candidate {
   name: string;
   partyList?: string;
   imageUrl?: string;
+  department?: { id: number; name: string; acronym: string } | null;
+  yearLevel?: { id: number; year: string } | null;
 }
 
 export interface BallotPosition {

@@ -11,7 +11,9 @@ export default function ActiveElections({
   elections,
   hideHeader = false,
 }: ActiveElectionsProps) {
-  const activeElections = elections.filter((e) => e.isActive);
+  const activeElections = elections.filter(
+    (e) => e.isActive && new Date() < new Date(e.endTime)
+  );
 
   return (
     <div className="space-y-6">

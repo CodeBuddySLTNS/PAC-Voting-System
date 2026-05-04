@@ -6,7 +6,9 @@ interface PastElectionsProps {
 }
 
 export default function PastElections({ elections }: PastElectionsProps) {
-  const pastElections = elections.filter((e) => !e.isActive);
+  const pastElections = elections.filter(
+    (e) => !(e.isActive && new Date() < new Date(e.endTime))
+  );
 
   if (pastElections.length === 0) return null;
 
