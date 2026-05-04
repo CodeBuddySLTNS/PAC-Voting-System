@@ -13,7 +13,11 @@ export const CandidateController = {
   },
 
   createCandidate: async (req: Request, res: Response) => {
-    const candidate = await CandidateService.createCandidate(req.body);
+    const imageFilename = req.file?.filename;
+    const candidate = await CandidateService.createCandidate({
+      ...req.body,
+      imageUrl: imageFilename ?? req.body.imageUrl,
+    });
     res.status(201).json({ success: true, data: candidate });
   },
 
