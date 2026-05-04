@@ -11,6 +11,7 @@ import { jsPDF } from "jspdf";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { handlePhotoUrl } from "@/lib/utils";
 import type { ElectionResults } from "@/hooks/use-elections";
+import headerImg from "@/assets/header.png";
 
 export interface CandidateResult {
   id: number;
@@ -33,21 +34,49 @@ interface WinnersDialogProps {
 }
 
 export function WinnersDialog({ results, election }: WinnersDialogProps) {
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     const doc = new jsPDF();
+
+    try {
+      const response = await fetch(headerImg);
+      const blob = await response.blob();
+
+      const base64data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      // header.png is 600x100 (6:1 ratio). Page width is 210, margins are 14, so width is 182.
+      // 182 / 6 is approx 30.3
+      // Passing base64 directly prevents jsPDF canvas re-encoding blurriness
+      doc.addImage(base64data, "PNG", 14, 10, 182, 30.3, "header", "FAST");
+    } catch (e) {
+      console.error("Failed to load header image for PDF", e);
+    }
 
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text(`${election.name} - Official Winners`, 14, 20);
+    const titleText = `${election.name} - Official Winners`;
+    const titleWidth = doc.getTextWidth(titleText);
+    doc.text(titleText, (210 - titleWidth) / 2, 52);
 
     doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const dateStr = new Date().toLocaleDateString();
-    doc.text(`Generated on: ${dateStr}`, 14, 28);
+    doc.setFont("helvetica", "italic");
+    const dateStr = `Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`;
+    const dateWidth = doc.getTextWidth(dateStr);
+    doc.text(dateStr, (210 - dateWidth) / 2, 58);
 
-    let yPos = 40;
+    // Separator line
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.line(14, 63, 196, 63);
+
+    let yPos = 70;
 
     if (results.length === 0) {
+      doc.setFont("helvetica", "normal");
       doc.text("No results available yet.", 14, yPos);
       doc.save(`${election.name.replace(/\s+/g, "_")}_Winners.pdf`);
       return;
@@ -77,30 +106,82 @@ export function WinnersDialog({ results, election }: WinnersDialogProps) {
       if (winners.length === 0) return;
 
       // check page boundary
-      if (yPos > 270) {
+      if (yPos > 260) {
         doc.addPage();
         yPos = 20;
       }
 
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text(position.title, 14, yPos);
-      yPos += 8;
+      // Position Header Background
+      doc.setFillColor(240, 244, 248); // light blue/gray
+      doc.rect(14, yPos, 182, 10, "F");
 
       doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(30, 41, 59); // slate-800
+      doc.text(position.title, 18, yPos + 7);
 
-      winners.forEach((w) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 116, 139); // slate-500
+      const seatText = `${position.maxVotes} Seat${position.maxVotes > 1 ? "s" : ""}`;
+      doc.text(seatText, 190 - doc.getTextWidth(seatText), yPos + 7);
+
+      yPos += 15;
+
+      // Table Headers
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(148, 163, 184); // slate-400
+      doc.text("RANK", 18, yPos);
+      doc.text("CANDIDATE", 35, yPos);
+      doc.text("PARTY", 120, yPos);
+      doc.text("VOTES", 189.5, yPos, { align: "right" });
+
+      yPos += 3;
+      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.line(14, yPos, 196, yPos);
+      yPos += 6;
+
+      // Table Rows
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42); // slate-900
+
+      winners.forEach((w, index) => {
         if (yPos > 280) {
           doc.addPage();
           yPos = 20;
+          doc.setFontSize(11);
+          doc.setTextColor(15, 23, 42);
         }
-        const party = w.partyList || "Independent";
-        doc.text(`• ${w.name} (${party}) - ${w.voteCount} votes`, 20, yPos);
-        yPos += 7;
-      });
 
-      yPos += 6;
+        doc.setFont("helvetica", "bold");
+        doc.text(`#${w.rank}`, 18, yPos);
+
+        doc.setFont("helvetica", "bold");
+        doc.text(w.name || "Unknown", 35, yPos);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139); // slate-500
+        const party = w.partyList || "Independent";
+        doc.text(party, 120, yPos);
+
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(16, 185, 129); // emerald-500
+        doc.text(w.voteCount.toString(), 186, yPos, { align: "right" });
+
+        // Reset colors for next iteration if they got changed
+        doc.setTextColor(15, 23, 42);
+
+        yPos += 4;
+
+        // subtle row divider except for last item
+        if (index < winners.length - 1) {
+          doc.setDrawColor(241, 245, 249); // slate-100
+          doc.line(14, yPos, 196, yPos);
+        }
+
+        yPos += 6;
+      });
     });
 
     doc.save(`${election.name.replace(/\s+/g, "_")}_Winners.pdf`);
