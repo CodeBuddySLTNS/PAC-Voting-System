@@ -92,7 +92,7 @@ export default function ElectionResults() {
         const yearName = groupCands[0].yearLevel?.year || "Unknown Year";
         const deptId = groupCands[0].department?.id || 0;
         const yearId = groupCands[0].yearLevel?.id || 0;
-        
+
         results.push({
           ...pos,
           positionId: `${pos.positionId}-${deptId}-${yearId}`,
@@ -133,7 +133,7 @@ export default function ElectionResults() {
       </div>
 
       {election.isActive && new Date(election.endTime) > new Date() && (
-        <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-amber-600 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-500">
+        <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-amber-600">
           <Info className="mt-0.5 h-5 w-5 shrink-0" />
           <div className="text-sm">
             <p className="font-semibold">Live Election Ongoing</p>
@@ -147,7 +147,7 @@ export default function ElectionResults() {
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="gap-0 border-none shadow-sm shadow-zinc-200/50 dark:bg-zinc-900/40 dark:shadow-none">
+        <Card className="gap-0 border-none shadow-sm shadow-zinc-200/50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Turnout
@@ -163,7 +163,7 @@ export default function ElectionResults() {
             </p>
           </CardContent>
         </Card>
-        <Card className="gap-0 border-none shadow-sm shadow-zinc-200/50 dark:bg-zinc-900/40 dark:shadow-none">
+        <Card className="gap-0 border-none shadow-sm shadow-zinc-200/50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Votes Processed

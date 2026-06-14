@@ -78,10 +78,10 @@ export default function AdminDashboard() {
   return (
     <div className="animate-in space-y-8 duration-500 fade-in slide-in-from-bottom-4">
       <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h2 className="text-3xl font-bold tracking-tight text-zinc-900">
           Admin Overview
         </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-zinc-500">
           Track key metrics and recent system activity.
         </p>
       </div>
@@ -101,34 +101,32 @@ export default function AdminDashboard() {
         <StatCard
           title="Active Voters"
           value={stats.activeStudents.toLocaleString()}
-          icon={
-            <UserCheck className="h-5 w-5 text-green-500 dark:text-green-400" />
-          }
+          icon={<UserCheck className="h-5 w-5 text-green-500" />}
         />
         <StatCard
           title="Inactive Voters"
           value={stats.inactiveStudents.toLocaleString()}
-          icon={<UserX className="h-5 w-5 text-red-500 dark:text-red-400" />}
+          icon={<UserX className="h-5 w-5 text-red-500" />}
         />
       </div>
 
       {/* Content Section */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 border-none bg-white shadow-sm dark:bg-zinc-900/40">
+        <Card className="col-span-4 border-none bg-white shadow-sm">
           <CardHeader>
             <CardTitle>Election Engagement</CardTitle>
             <CardDescription>
               Total distinct votes cast per recent election.
             </CardDescription>
           </CardHeader>
-          <CardContent className="m-6 mt-0 flex h-[300px] items-center justify-center rounded-xl border border-dashed border-zinc-100 bg-zinc-50 px-4 pt-6 dark:border-zinc-800 dark:bg-zinc-900/20">
+          <CardContent className="m-6 mt-0 flex h-[300px] items-center justify-center rounded-xl border border-dashed border-zinc-100 bg-zinc-50 px-4 pt-6">
             {stats.electionEngagement.length > 0 ? (
               <ChartContainer
                 config={chartConfig}
                 className="mx-auto max-h-[250px] w-full"
               >
-                <BarChart 
-                  data={stats.electionEngagement} 
+                <BarChart
+                  data={stats.electionEngagement}
                   margin={{ left: -20, right: 0, top: 10, bottom: 20 }}
                 >
                   <CartesianGrid vertical={false} />
@@ -167,7 +165,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 border-none bg-white shadow-sm dark:bg-zinc-900/40">
+        <Card className="col-span-3 border-none bg-white shadow-sm">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
@@ -183,7 +181,7 @@ export default function AdminDashboard() {
                       <AvatarImage
                         src={handlePhotoUrl(activity?.imageUrl, activity.user)}
                       />
-                      <AvatarFallback className="bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                      <AvatarFallback className="bg-zinc-100 text-zinc-600">
                         {activity.user.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
@@ -191,9 +189,7 @@ export default function AdminDashboard() {
                       <p className="text-sm leading-none font-medium">
                         {activity.user}
                       </p>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                        {activity.action}
-                      </p>
+                      <p className="text-sm text-zinc-500">{activity.action}</p>
                     </div>
                     <div className="text-xs whitespace-nowrap text-zinc-400">
                       {getRelativeTime(activity.time)}

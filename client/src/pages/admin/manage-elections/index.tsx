@@ -84,7 +84,7 @@ export default function ManageElections() {
         </Button>
       </div>
 
-      <Card className="overflow-hidden border-0 p-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+      <Card className="overflow-hidden border-0 p-0 shadow-sm ring-1 ring-black/5">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -222,7 +222,7 @@ export default function ManageElections() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="cursor-pointer gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
+                              className="cursor-pointer gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
                               onClick={() =>
                                 navigate(
                                   `/dashboard/elections/${election.id}/results`

@@ -20,7 +20,7 @@ export default function ActiveElections({
       {!hideHeader && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-2xl font-bold tracking-tight text-zinc-900">
               Active Elections
             </h3>
             <Badge className="animate-pulse border-none bg-emerald-500 hover:bg-emerald-600">
@@ -31,14 +31,14 @@ export default function ActiveElections({
       )}
 
       {activeElections.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-zinc-200 bg-zinc-50/50 px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-900/20">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-zinc-200 bg-zinc-50/50 px-6 py-16 text-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-[3px]">
             <img src="/voting.gif" alt="Voting" />
           </div>
-          <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <h3 className="text-lg font-semibold text-zinc-900">
             No Active Elections
           </h3>
-          <p className="mt-2 max-w-xs text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-2 max-w-xs text-sm text-zinc-500">
             There are no elections currently open for voting.
           </p>
         </div>

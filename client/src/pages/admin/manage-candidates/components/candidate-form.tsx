@@ -174,7 +174,7 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
   };
 
   return (
-    <Card className="h-max border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+    <Card className="h-max border-0 shadow-sm ring-1 ring-black/5">
       <CardHeader>
         <CardTitle className="text-lg">Add New Runner</CardTitle>
         <CardDescription>
@@ -406,7 +406,9 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field>
-                  <FieldLabel>Department{!isRepresentative && " (Optional)"}</FieldLabel>
+                  <FieldLabel>
+                    Department{!isRepresentative && " (Optional)"}
+                  </FieldLabel>
                   <Controller
                     control={form.control}
                     name="departmentId"
@@ -435,7 +437,9 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
                   <FieldError errors={[form.formState.errors.departmentId]} />
                 </Field>
                 <Field>
-                  <FieldLabel>Year Level{!isRepresentative && " (Optional)"}</FieldLabel>
+                  <FieldLabel>
+                    Year Level{!isRepresentative && " (Optional)"}
+                  </FieldLabel>
                   <Controller
                     control={form.control}
                     name="yearLevelId"

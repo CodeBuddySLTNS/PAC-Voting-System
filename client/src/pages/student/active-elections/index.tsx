@@ -42,7 +42,7 @@ export default function ActiveElectionsPage() {
             Live
           </Badge>
         </div>
-        <p className="text-zinc-500 dark:text-zinc-400">
+        <p className="text-zinc-500">
           Browse and participate in currently open elections.
         </p>
       </div>

@@ -89,7 +89,7 @@ export function CandidateRoster({ electionId }: CandidateRosterProps) {
   };
 
   return (
-    <Card className="flex h-max flex-col gap-0 border-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+    <Card className="flex h-max flex-col gap-0 border-0 shadow-sm ring-1 ring-black/5">
       <CardHeader className="border-b border-border/50 pb-3">
         <CardTitle className="text-lg">Active Roster</CardTitle>
         <CardDescription>Live preview of assigned candidates.</CardDescription>
@@ -144,26 +144,32 @@ export function CandidateRoster({ electionId }: CandidateRosterProps) {
                             )}
                           </div>
                           {(() => {
-                            const dept = candidate.department ?? candidate.student?.department;
-                            const yl = candidate.yearLevel ?? candidate.student?.yearLevel;
-                            return (candidate.partyList || dept || yl) && (
-                              <div className="mt-1.5 flex items-center gap-1.5">
-                                {candidate.partyList && (
-                                  <span className="rounded-sm bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground shadow-xs outline-1 outline-border">
-                                    {candidate.partyList}
-                                  </span>
-                                )}
-                                {dept && (
-                                  <span className="rounded-sm bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                                    {dept.acronym}
-                                  </span>
-                                )}
-                                {yl && (
-                                  <span className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
-                                    {yl.year}
-                                  </span>
-                                )}
-                              </div>
+                            const dept =
+                              candidate.department ??
+                              candidate.student?.department;
+                            const yl =
+                              candidate.yearLevel ??
+                              candidate.student?.yearLevel;
+                            return (
+                              (candidate.partyList || dept || yl) && (
+                                <div className="mt-1.5 flex items-center gap-1.5">
+                                  {candidate.partyList && (
+                                    <span className="rounded-sm bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground shadow-xs outline-1 outline-border">
+                                      {candidate.partyList}
+                                    </span>
+                                  )}
+                                  {dept && (
+                                    <span className="rounded-sm bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                                      {dept.acronym}
+                                    </span>
+                                  )}
+                                  {yl && (
+                                    <span className="rounded-sm bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                                      {yl.year}
+                                    </span>
+                                  )}
+                                </div>
+                              )
                             );
                           })()}
                         </div>

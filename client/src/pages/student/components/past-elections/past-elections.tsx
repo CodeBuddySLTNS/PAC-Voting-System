@@ -15,7 +15,7 @@ export default function PastElections({ elections }: PastElectionsProps) {
   return (
     <div className="space-y-6 pt-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+        <h3 className="text-xl font-semibold tracking-tight text-zinc-900">
           Recent & Upcoming Elections
         </h3>
       </div>

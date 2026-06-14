@@ -161,7 +161,7 @@ export default function ManageStudents() {
         </div>
       </div>
 
-      <Card className="overflow-hidden border-0 p-0 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+      <Card className="overflow-hidden border-0 p-0 shadow-sm ring-1 ring-black/5">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
