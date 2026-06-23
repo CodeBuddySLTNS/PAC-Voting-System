@@ -41,14 +41,14 @@ export const AuthService = {
         subject: `PAC Voting System - Verify Your Email #${Date.now()}`,
         html: `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px; text-align: center;">
-          <h2 style="margin: 3px;">Email Verification</h2>
-          <p style="margin: 3px;">Your verification code is:</p>
+          <h2 style="margin: 3px; text-align: center;">Email Verification</h2>
+          <p style="margin: 3px; text-align: center;">Your verification code is:</p>
           <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px; margin-top: 4px">
             ${otp}
           </div>
-          <p style="color: #888; margin-top: 16px;">This code expires in 5 minutes.</p>
-          <p style="color: #888; margin-top: 16px;">If you did not request this code, please ignore this email.</p>
-          <p style="color: #888; margin-top: 16px;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
+          <p style="color: #888; margin-top: 16px; text-align: center;">This code expires in 5 minutes.</p>
+          <p style="color: #888; margin-top: 16px; text-align: center;">If you did not request this code, please ignore this email.</p>
+          <p style="color: #888; margin-top: 16px; text-align: center;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
         </div>
       `,
       });
@@ -88,14 +88,14 @@ export const AuthService = {
       subject: "PAC Voting System - Verify Your Email #" + Date.now(),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px;">
-          <h2 style="line-height: 2;">Email Verification</h2>
-          <p>Your verification code is:</p>
+          <h2 style="line-height: 2; text-align: center;">Email Verification</h2>
+          <p style="text-align: center;">Your verification code is:</p>
           <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px;">
             ${otp}
           </div>
-          <p style="color: #888; margin-top: 16px;">This code expires in 5 minutes.</p>
-          <p style="color: #888; margin-top: 16px;">If you did not request this code, please ignore this email.</p>
-          <p style="color: #888; margin-top: 16px;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
+          <p style="color: #888; margin-top: 16px; text-align: center;">This code expires in 5 minutes.</p>
+          <p style="color: #888; margin-top: 16px; text-align: center;">If you did not request this code, please ignore this email.</p>
+          <p style="color: #888; margin-top: 16px; text-align: center;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
         </div>
       `,
     });
@@ -245,7 +245,7 @@ export const AuthService = {
     const storedData = (await verifyOtp(
       data.email,
       data.otp,
-      "RESET_PASSWORD"
+      "RESET_PASSWORD",
     )) as { email: string; isAdmin: boolean } | null;
 
     if (!storedData) {
