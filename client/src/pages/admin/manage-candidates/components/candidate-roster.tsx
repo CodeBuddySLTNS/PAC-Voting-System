@@ -38,44 +38,67 @@ export function CandidateRoster({ electionId }: CandidateRosterProps) {
     });
 
     const groups: {
-      positionId: number;
+      positionId: number | string;
       title: string;
       candidates: Candidate[];
     }[] = [];
 
     if (positions) {
       positions.forEach((pos) => {
-        if (map.has(pos.positionId)) {
+        if (!map.has(pos.positionId)) return;
+
+        const cands = map.get(pos.positionId)!;
+        map.delete(pos.positionId);
+
+        // split representative positions into dept+year sub-groups
+        if (pos.title.toLowerCase().includes("representative")) {
+          const subGroups = new Map<string, Candidate[]>();
+          cands.forEach((c) => {
+            const dept = c.department ?? c.student?.department;
+            const yl = c.yearLevel ?? c.student?.yearLevel;
+            const key = `${dept?.id || 0}-${yl?.id || 0}`;
+            if (!subGroups.has(key)) subGroups.set(key, []);
+            subGroups.get(key)!.push(c);
+          });
+
+          Array.from(subGroups.entries())
+            .sort(([, a], [, b]) => {
+              const deptA = (a[0].department ?? a[0].student?.department)?.name ?? "";
+              const deptB = (b[0].department ?? b[0].student?.department)?.name ?? "";
+              if (deptA !== deptB) return deptA.localeCompare(deptB);
+              const ylA = (a[0].yearLevel ?? a[0].student?.yearLevel)?.year ?? "";
+              const ylB = (b[0].yearLevel ?? b[0].student?.yearLevel)?.year ?? "";
+              return ylA.localeCompare(ylB);
+            })
+            .forEach(([key, subCands]) => {
+              const dept = subCands[0].department ?? subCands[0].student?.department;
+              const yl = subCands[0].yearLevel ?? subCands[0].student?.yearLevel;
+              const deptLabel = dept?.acronym || "Unknown Dept";
+              const ylLabel = yl?.year || "Unknown Year";
+
+              groups.push({
+                positionId: `${pos.positionId}-${key}`,
+                title: `${pos.title} (${deptLabel} - ${ylLabel})`,
+                candidates: subCands,
+              });
+            });
+        } else {
           groups.push({
             positionId: pos.positionId,
             title: pos.title,
-            candidates: map.get(pos.positionId)!,
+            candidates: cands,
           });
-          map.delete(pos.positionId);
         }
       });
     }
 
+    // leftover positions not found in the positions list
     map.forEach((cands, posId) => {
       groups.push({
         positionId: posId,
         title: cands[0]?.position?.title || "Unknown",
         candidates: cands,
       });
-    });
-
-    // sort representative groups by department → year level
-    groups.forEach((g) => {
-      if (g.title.toLowerCase().includes("representative")) {
-        g.candidates.sort((a, b) => {
-          const deptA = (a.department ?? a.student?.department)?.name ?? "";
-          const deptB = (b.department ?? b.student?.department)?.name ?? "";
-          if (deptA !== deptB) return deptA.localeCompare(deptB);
-          const ylA = (a.yearLevel ?? a.student?.yearLevel)?.year ?? "";
-          const ylB = (b.yearLevel ?? b.student?.yearLevel)?.year ?? "";
-          return ylA.localeCompare(ylB);
-        });
-      }
     });
 
     return groups;

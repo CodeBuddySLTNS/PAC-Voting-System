@@ -21,7 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useCreateCandidate } from "@/hooks/use-candidates";
+import {
+  useCreateCandidate,
+  useElectionCandidates,
+} from "@/hooks/use-candidates";
 import {
   usePositions,
   useCreatePosition,
@@ -29,7 +32,7 @@ import {
   useDepartments,
   useYearLevels,
 } from "@/hooks/use-config";
-import { UserPlus, Search, Plus, ImagePlus, X } from "lucide-react";
+import { UserPlus, Search, Plus, ImagePlus, X, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -60,6 +63,13 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
   const { data: positions } = usePositions();
   const { data: departments } = useDepartments();
   const { data: yearLevels } = useYearLevels();
+  const { data: existingCandidates } = useElectionCandidates(electionId);
+
+  // student ids already in the roster — exclude from search
+  const assignedStudentIds = new Set(
+    existingCandidates?.filter((c) => c.studentId).map((c) => c.studentId!) ??
+      []
+  );
   const createPositionMutation = useCreatePosition();
 
   const [isAddingPosition, setIsAddingPosition] = useState(false);
@@ -68,6 +78,7 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
     maxVotes: 1,
     isGlobal: true,
   });
+  const [showGlobalInfo, setShowGlobalInfo] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"student" | "custom">("student");
   const [searchQuery, setSearchQuery] = useState("");
@@ -207,7 +218,7 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
                 <div className="flex items-end gap-3">
                   <div className="flex-1 space-y-1.5">
                     <Label className="text-xs text-muted-foreground">
-                      Max Votes
+                      Max Votes that can be casted for this position
                     </Label>
                     <Input
                       type="number"
@@ -223,7 +234,7 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
                       disabled={createPositionMutation.isPending}
                     />
                   </div>
-                  <div className="mb-1.5 flex items-center gap-2 pr-2">
+                  <div className="relative mb-1.5 flex items-center gap-2 pr-2">
                     <Switch
                       checked={newPosition.isGlobal}
                       onCheckedChange={(val) =>
@@ -234,6 +245,18 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
                     <span className="text-xs text-muted-foreground">
                       Global
                     </span>
+                    <button
+                      type="button"
+                      className="cursor-pointer"
+                      onClick={() => setShowGlobalInfo((v) => !v)}
+                    >
+                      <Info className="h-3.5 w-3.5 text-muted-foreground/60 transition-colors hover:text-foreground" />
+                    </button>
+                    {showGlobalInfo && (
+                      <div className="absolute top-full right-0 z-10 mt-1.5 w-56 rounded-md border bg-popover p-2.5 text-[11px] leading-snug text-muted-foreground shadow-md">
+                        Turn off if only voters within the same department and year level can vote for this position (e.g. Representative).
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 pt-1">
@@ -371,21 +394,26 @@ export function CandidateForm({ electionId }: CandidateFormProps) {
                         </div>
                       ) : (
                         <div className="py-1">
-                          {searchResults?.map((st: StudentSearchInfo) => (
-                            <button
-                              key={st.id}
-                              type="button"
-                              className="flex w-full cursor-pointer items-center justify-between px-4 py-2 text-left text-sm transition-colors hover:bg-muted focus:bg-muted"
-                              onClick={() => setSelectedStudent(st)}
-                            >
-                              <span>
-                                {st.firstName} {st.lastName}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {st.email}
-                              </span>
-                            </button>
-                          ))}
+                          {searchResults
+                            ?.filter(
+                              (st: StudentSearchInfo) =>
+                                !assignedStudentIds.has(st.id)
+                            )
+                            .map((st: StudentSearchInfo) => (
+                              <button
+                                key={st.id}
+                                type="button"
+                                className="flex w-full cursor-pointer items-center justify-between px-4 py-2 text-left text-sm transition-colors hover:bg-muted focus:bg-muted"
+                                onClick={() => setSelectedStudent(st)}
+                              >
+                                <span>
+                                  {st.firstName} {st.lastName}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {st.email}
+                                </span>
+                              </button>
+                            ))}
                         </div>
                       )}
                     </div>

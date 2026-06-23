@@ -101,4 +101,21 @@ export const AuthController = {
 
     res.status(200).json({ success: true, message: "Logged out successfully" });
   },
+
+  forgotPassword: async (req: Request, res: Response) => {
+    const result = await AuthService.sendResetPasswordOtp(req.body);
+    res.status(200).json({
+      success: true,
+      message: "Reset code sent to your email",
+      data: result,
+    });
+  },
+
+  resetPassword: async (req: Request, res: Response) => {
+    await AuthService.resetPassword(req.body);
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
+  },
 };

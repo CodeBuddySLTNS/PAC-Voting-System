@@ -5,6 +5,8 @@ import {
   loginSchema,
   signupSchema,
   verifyOtpSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "../models/auth.models";
 import { tryCatch } from "../lib/utils";
 import authenticate from "../middlewares/authentication";
@@ -32,5 +34,16 @@ router.post(
 router.get("/refresh-token", tryCatch(AuthController.refreshToken));
 router.get("/me", authenticate, tryCatch(AuthController.getProfile));
 router.post("/logout", authenticate, tryCatch(AuthController.logout));
+
+router.post(
+  "/forgot-password",
+  validate(forgotPasswordSchema),
+  tryCatch(AuthController.forgotPassword),
+);
+router.post(
+  "/reset-password",
+  validate(resetPasswordSchema),
+  tryCatch(AuthController.resetPassword),
+);
 
 export default router;

@@ -2,7 +2,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 import { CustomError, generateTokens } from "../lib/utils";
-import type { LoginInput, SignupInput } from "../models/auth.models";
+import type {
+  LoginInput,
+  SignupInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+} from "../models/auth.models";
 import { generateOtp, storeOtp, verifyOtp, clearOtp } from "../lib/utils/otp";
 import { sendEmail } from "../lib/utils/email";
 import status from "http-status";
@@ -191,5 +196,76 @@ export const AuthService = {
       },
     });
     return user;
+  },
+
+  sendResetPasswordOtp: async (data: ForgotPasswordInput) => {
+    let existingUser;
+
+    if (data.isAdmin) {
+      existingUser = await prisma.admin.findUnique({
+        where: { email: data.email },
+      });
+    } else {
+      existingUser = await prisma.student.findUnique({
+        where: { email: data.email },
+      });
+    }
+
+    if (!existingUser) {
+      throw new CustomError("No account found with this email", status.NOT_FOUND);
+    }
+
+    const otp = generateOtp();
+    await storeOtp(data.email, otp, "RESET_PASSWORD", {
+      email: data.email,
+      isAdmin: !!data.isAdmin,
+    });
+
+    await sendEmail({
+      to: data.email,
+      subject: `PAC Voting System - Reset Password Code #${Date.now()}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px; text-align: center;">
+          <h2 style="margin: 3px;">Reset Password</h2>
+          <p style="margin: 3px;">Your password reset verification code is:</p>
+          <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px; margin-top: 4px">
+            ${otp}
+          </div>
+          <p style="color: #888; margin-top: 16px;">This code expires in 5 minutes.</p>
+          <p style="color: #888; margin-top: 16px;">If you did not request this code, please ignore this email.</p>
+          <p style="color: #888; margin-top: 16px;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
+        </div>
+      `,
+    });
+
+    return { email: data.email };
+  },
+
+  resetPassword: async (data: ResetPasswordInput) => {
+    const storedData = (await verifyOtp(
+      data.email,
+      data.otp,
+      "RESET_PASSWORD"
+    )) as { email: string; isAdmin: boolean } | null;
+
+    if (!storedData) {
+      throw new CustomError("Invalid or expired OTP", status.BAD_REQUEST);
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    if (storedData.isAdmin) {
+      await prisma.admin.update({
+        where: { email: data.email },
+        data: { password: hashedPassword },
+      });
+    } else {
+      await prisma.student.update({
+        where: { email: data.email },
+        data: { password: hashedPassword },
+      });
+    }
+
+    await clearOtp(data.email, "RESET_PASSWORD");
   },
 };

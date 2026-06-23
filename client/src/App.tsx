@@ -13,6 +13,7 @@ import { useEffect } from "react";
 
 import LoginPage from "@/pages/auth/login";
 import SignupPage from "@/pages/auth/signup";
+import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import ProtectedRoute from "./components/protected-route/protected-route";
 import DashboardLayout from "./components/layouts/dashboard-layout";
 import AdminDashboard from "./pages/admin/admin-dashboard";
@@ -69,6 +70,7 @@ export function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<RoleAccess />} />

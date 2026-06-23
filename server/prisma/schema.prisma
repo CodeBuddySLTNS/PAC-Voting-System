@@ -175,6 +175,7 @@ model Vote {
 enum OtpType {
   SIGNUP
   LOGIN
+  RESET_PASSWORD
 }
 
 model OtpVerification {

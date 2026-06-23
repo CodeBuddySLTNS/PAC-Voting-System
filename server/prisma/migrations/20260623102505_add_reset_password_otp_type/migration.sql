@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `otp_verifications` MODIFY `type` ENUM('SIGNUP', 'LOGIN', 'RESET_PASSWORD') NOT NULL DEFAULT 'SIGNUP';
