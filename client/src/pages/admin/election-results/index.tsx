@@ -43,65 +43,40 @@ export default function ElectionResults() {
 
   const { election, stats, results: rawResults } = data;
 
-  // students only see their own dept/year in representative positions
-  const isStudent = !user?.adminId;
   let results: typeof rawResults = [];
 
-  if (isStudent) {
-    results = rawResults
-      .map((pos) => {
-        if (!pos.title.toLowerCase().includes("representative")) return pos;
-        return {
-          ...pos,
-          candidates: pos.candidates.filter(
-            (c) =>
-              c.department?.id === user?.departmentId &&
-              c.yearLevel?.id === user?.yearLevelId
-          ),
-        };
-      })
-      .filter((pos) => {
-        if (
-          pos.title.toLowerCase().includes("representative") &&
-          pos.candidates.length === 0
-        ) {
-          return false;
-        }
-        return true;
-      });
-  } else {
-    rawResults.forEach((pos) => {
-      if (!pos.title.toLowerCase().includes("representative")) {
-        results.push(pos);
-        return;
-      }
+  // both admin and student see representatives grouped by dept+year
+  rawResults.forEach((pos) => {
+    if (!pos.title.toLowerCase().includes("representative")) {
+      results.push(pos);
+      return;
+    }
 
-      // Group candidates by dept+year
-      const groups = new Map<string, typeof pos.candidates>();
-      pos.candidates.forEach((c) => {
-        const deptId = c.department?.id || 0;
-        const yearId = c.yearLevel?.id || 0;
-        const key = `${deptId}-${yearId}`;
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key)!.push(c);
-      });
+    // group candidates by dept+year
+    const groups = new Map<string, typeof pos.candidates>();
+    pos.candidates.forEach((c) => {
+      const deptId = c.department?.id || 0;
+      const yearId = c.yearLevel?.id || 0;
+      const key = `${deptId}-${yearId}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(c);
+    });
 
-      // Create a sub-position for each group
-      Array.from(groups.values()).forEach((groupCands) => {
-        const deptName = groupCands[0].department?.acronym || "Unknown Dept";
-        const yearName = groupCands[0].yearLevel?.year || "Unknown Year";
-        const deptId = groupCands[0].department?.id || 0;
-        const yearId = groupCands[0].yearLevel?.id || 0;
+    // create a sub-position card for each dept+year group
+    Array.from(groups.values()).forEach((groupCands) => {
+      const deptName = groupCands[0].department?.acronym || "Unknown Dept";
+      const yearName = groupCands[0].yearLevel?.year || "Unknown Year";
+      const deptId = groupCands[0].department?.id || 0;
+      const yearId = groupCands[0].yearLevel?.id || 0;
 
-        results.push({
-          ...pos,
-          positionId: `${pos.positionId}-${deptId}-${yearId}`,
-          title: `${pos.title} (${deptName} - ${yearName})`,
-          candidates: groupCands,
-        });
+      results.push({
+        ...pos,
+        positionId: `${pos.positionId}-${deptId}-${yearId}`,
+        title: `${pos.title} (${deptName} - ${yearName})`,
+        candidates: groupCands,
       });
     });
-  }
+  });
 
   return (
     <div className="animate-in space-y-6 pb-8 duration-500 fade-in slide-in-from-bottom-4">
