@@ -212,7 +212,7 @@ export const AuthService = {
     }
 
     if (!existingUser) {
-      throw new CustomError("No account found with this email", status.NOT_FOUND);
+      return { email: data.email };
     }
 
     const otp = generateOtp();
