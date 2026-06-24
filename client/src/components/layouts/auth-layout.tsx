@@ -23,7 +23,9 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
               className="h-full w-full object-contain"
             />
           </div>
-          <span className="text-xl font-bold tracking-tight">PAC SGO</span>
+          <span className="text-xl font-bold tracking-tight">
+            SGO PAC SALUG CAMPUS
+          </span>
         </div>
 
         {/* PAC logo*/}
