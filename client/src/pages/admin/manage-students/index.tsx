@@ -28,7 +28,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
@@ -44,7 +43,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit,
-  Upload,
   FileSpreadsheet,
   CheckCheck,
   ChevronDown,
@@ -266,7 +264,7 @@ export default function ManageStudents() {
                           onSettled: () => {
                             document.body.style.pointerEvents = "";
                           },
-                        },
+                        }
                       );
                     } else {
                       makeAllEligibleMutation.mutate(
@@ -275,7 +273,7 @@ export default function ManageStudents() {
                           onSettled: () => {
                             document.body.style.pointerEvents = "";
                           },
-                        },
+                        }
                       );
                     }
                     setConfirmEligibleScope(null);
@@ -322,7 +320,7 @@ export default function ManageStudents() {
               setCurrentPage(1);
             }}
           >
-            <SelectTrigger className="flex-1 sm:w-[160px]">
+            <SelectTrigger className="flex-1 sm:w-40">
               <SelectValue placeholder="Department" />
             </SelectTrigger>
             <SelectContent>
@@ -342,7 +340,7 @@ export default function ManageStudents() {
               setCurrentPage(1);
             }}
           >
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-35">
               <SelectValue placeholder="Year Level" />
             </SelectTrigger>
             <SelectContent>
@@ -489,6 +487,8 @@ export default function ManageStudents() {
           <ImportStudentsDialog
             open={isImportOpen}
             onOpenChange={setIsImportOpen}
+            initialDepartment={selectedDepartment}
+            initialYearLevel={selectedYearLevel}
           />
           {/* Pagination Controls */}
           {!isLoading && filteredStudents.length > 0 && (

@@ -61,9 +61,18 @@ export function useImportStudents() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (students: RawStudentRow[]) => {
+    mutationFn: async (
+      payload:
+        | {
+            students: RawStudentRow[];
+            defaultDepartmentId?: number;
+            defaultYearLevelId?: number;
+          }
+        | RawStudentRow[],
+    ) => {
+      const data = Array.isArray(payload) ? { students: payload } : payload;
       const fn = coleAPI("/api/users/students/import", "POST");
-      return fn({ students }) as Promise<{
+      return fn(data) as Promise<{
         message: string;
         summary: ImportSummary;
       }>;

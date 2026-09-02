@@ -12,8 +12,16 @@ export const DashboardService = {
 
     const activeStudents = totalStudents - inactiveStudents;
 
-    // Recent activity: get latest 5 votes, distinct by student and election
+    // recent activity: get latest votes from the past month (max 30 days)
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+
     const recentVotes = await prisma.vote.findMany({
+      where: {
+        timestamp: {
+          gte: oneMonthAgo,
+        },
+      },
       take: 5,
       orderBy: { timestamp: "desc" },
       distinct: ["studentId", "electionId"],

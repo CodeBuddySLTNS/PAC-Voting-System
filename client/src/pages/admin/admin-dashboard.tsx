@@ -67,7 +67,7 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[450px] w-full items-center justify-center">
+      <div className="flex h-112.5 w-full items-center justify-center">
         <LoadingAnimation />
       </div>
     );
@@ -119,11 +119,11 @@ export default function AdminDashboard() {
               Total distinct votes cast per recent election.
             </CardDescription>
           </CardHeader>
-          <CardContent className="m-6 mt-0 flex h-[300px] items-center justify-center rounded-xl border border-dashed border-zinc-100 bg-zinc-50 px-4 pt-6">
+          <CardContent className="m-6 mt-0 flex h-75 items-center justify-center rounded-xl border border-dashed border-zinc-100 bg-zinc-50 px-4 pt-6">
             {stats.electionEngagement.length > 0 ? (
               <ChartContainer
                 config={chartConfig}
-                className="mx-auto max-h-[250px] w-full"
+                className="mx-auto max-h-62.5 w-full"
               >
                 <BarChart
                   data={stats.electionEngagement}
@@ -169,7 +169,7 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
-              Latest votes casted within the system.
+              Latest votes casted within the past 30 days.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -197,8 +197,8 @@ export default function AdminDashboard() {
                   </div>
                 ))
               ) : (
-                <div className="py-4 text-center text-sm text-zinc-500">
-                  No recent activity found.
+                <div className="flex h-75 items-center justify-center text-sm text-zinc-500">
+                  No votes casted in the past 30 days.
                 </div>
               )}
             </div>

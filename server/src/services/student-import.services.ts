@@ -5,8 +5,8 @@ export interface RawStudentRow {
   firstName: string;
   middleName?: string | null;
   lastName: string;
-  department: string;
-  yearLevel: string;
+  department?: string | null;
+  yearLevel?: string | null;
   email?: string | null;
 }
 
@@ -54,8 +54,14 @@ const sanitizeEmail = (val?: string | null): string | null => {
 };
 
 export const StudentImportService = {
-  // imports or upserts student masterlist with bulk chunking
-  importStudents: async (rows: RawStudentRow[]): Promise<ImportSummary> => {
+  // imports or upserts student masterlist with bulk chunking and optional scope defaults
+  importStudents: async (
+    rows: RawStudentRow[],
+    defaults?: {
+      departmentId?: number | undefined;
+      yearLevelId?: number | undefined;
+    },
+  ): Promise<ImportSummary> => {
     const summary: ImportSummary = {
       totalProcessed: rows.length,
       inserted: 0,
@@ -133,22 +139,32 @@ export const StudentImportService = {
         continue;
       }
 
-      const departmentId = deptMap.get(deptKey);
+      let departmentId = deptKey ? deptMap.get(deptKey) : undefined;
+      if (!departmentId && defaults?.departmentId) {
+        departmentId = defaults.departmentId;
+      }
       if (!departmentId) {
         summary.errors.push({
           row: rowNum,
           studentId,
-          reason: `Department not found: "${row.department}"`,
+          reason: row.department
+            ? `Department not found: "${row.department}"`
+            : "Department not specified in file or preset",
         });
         continue;
       }
 
-      const yearLevelId = yearMap.get(yearKey);
+      let yearLevelId = yearKey ? yearMap.get(yearKey) : undefined;
+      if (!yearLevelId && defaults?.yearLevelId) {
+        yearLevelId = defaults.yearLevelId;
+      }
       if (!yearLevelId) {
         summary.errors.push({
           row: rowNum,
           studentId,
-          reason: `Year level not found: "${row.yearLevel}"`,
+          reason: row.yearLevel
+            ? `Year level not found: "${row.yearLevel}"`
+            : "Year level not specified in file or preset",
         });
         continue;
       }

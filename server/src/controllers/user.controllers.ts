@@ -92,14 +92,23 @@ export const UserController = {
     }
   },
   importStudents: async (req: Request, res: Response) => {
-    const { students } = req.body;
+    const { students, defaultDepartmentId, defaultYearLevelId } = req.body;
     if (!students || !Array.isArray(students)) {
       res.status(400).json({ message: "Invalid students array in request body" });
       return;
     }
 
-    const { StudentImportService } = await import("../services/student-import.services");
-    const summary = await StudentImportService.importStudents(students);
+    const { StudentImportService } = await import(
+      "../services/student-import.services"
+    );
+    const summary = await StudentImportService.importStudents(students, {
+      departmentId: defaultDepartmentId
+        ? Number(defaultDepartmentId)
+        : undefined,
+      yearLevelId: defaultYearLevelId
+        ? Number(defaultYearLevelId)
+        : undefined,
+    });
 
     res.status(200).json({
       message: "Student masterlist processed successfully",
