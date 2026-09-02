@@ -1,10 +1,12 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
-import { CustomError, generateTokens } from "../lib/utils";
+import { CustomError } from "../lib/utils";
 import type {
   LoginInput,
-  SignupInput,
+  VerifyIdentityInput,
+  SendActivationOtpInput,
+  VerifyActivationOtpInput,
   ForgotPasswordInput,
   ResetPasswordInput,
 } from "../models/auth.models";
@@ -13,35 +15,108 @@ import { sendEmail } from "../lib/utils/email";
 import status from "http-status";
 
 export const AuthService = {
-  loginOtp: async (data: LoginInput, isAdmin?: "admin" | undefined) => {
-    let existingUser;
+  // verifies student identity against imported masterlist
+  verifyStudentIdentity: async (data: VerifyIdentityInput) => {
+    const studentIdTrimmed = data.studentId.trim();
+    const firstNameTrimmed = data.firstName.trim();
+    const lastNameTrimmed = data.lastName.trim();
 
-    if (isAdmin) {
-      existingUser = await prisma.admin.findUnique({
-        where: { email: data.email },
-      });
-    } else {
-      existingUser = await prisma.student.findUnique({
-        where: { email: data.email },
-      });
+    const student = await prisma.student.findFirst({
+      where: {
+        studentId: studentIdTrimmed,
+        firstName: { equals: firstNameTrimmed },
+        lastName: { equals: lastNameTrimmed },
+      },
+      include: {
+        department: true,
+        yearLevel: true,
+      },
+    });
+
+    if (!student) {
+      throw new CustomError(
+        "Student record not found. Please check your Student ID, First Name, and Last Name or contact your Election Officer.",
+        status.NOT_FOUND,
+      );
     }
 
-    if (!existingUser) {
-      throw new CustomError("Incorrect email or password", status.NOT_FOUND);
+    if (student.isActivated) {
+      throw new CustomError(
+        "This account is already activated. Please proceed to login with your Student ID and Email.",
+        status.BAD_REQUEST,
+      );
     }
 
-    const isMatch = await bcrypt.compare(data.password, existingUser.password);
+    if (!student.isActive) {
+      throw new CustomError(
+        "This student account is currently deactivated. Please contact your Election Officer.",
+        status.FORBIDDEN,
+      );
+    }
 
-    if (isMatch) {
-      const otp = generateOtp();
-      await storeOtp(data.email, otp, "LOGIN", existingUser);
+    return {
+      id: student.id,
+      studentId: student.studentId,
+      firstName: student.firstName,
+      middleName: student.middleName,
+      lastName: student.lastName,
+      department: student.department.name,
+      departmentAcronym: student.department.acronym,
+      yearLevel: student.yearLevel.year,
+      email: student.email || "",
+    };
+  },
 
-      await sendEmail({
-        to: data.email,
-        subject: `PAC Voting System - Verify Your Email #${Date.now()}`,
-        html: `
-        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px; text-align: center;">
-          <h2 style="margin: 3px; text-align: center;">Email Verification</h2>
+  // sends otp to verify student email during activation
+  sendActivationOtp: async (data: SendActivationOtpInput) => {
+    const studentIdTrimmed = data.studentId.trim();
+    const emailTrimmed = data.email.trim().toLowerCase();
+
+    const student = await prisma.student.findUnique({
+      where: { studentId: studentIdTrimmed },
+    });
+
+    if (!student) {
+      throw new CustomError("Student record not found", status.NOT_FOUND);
+    }
+
+    if (student.isActivated) {
+      throw new CustomError("Account is already activated", status.BAD_REQUEST);
+    }
+
+    // check if email is used by another student or admin
+    const [existingStudent, existingAdmin] = await Promise.all([
+      prisma.student.findFirst({
+        where: {
+          email: emailTrimmed,
+          NOT: { id: student.id },
+        },
+      }),
+      prisma.admin.findUnique({
+        where: { email: emailTrimmed },
+      }),
+    ]);
+
+    if (existingStudent || existingAdmin) {
+      throw new CustomError(
+        "This email is already registered to another account",
+        status.CONFLICT,
+      );
+    }
+
+    const otp = generateOtp();
+    await storeOtp(emailTrimmed, otp, "ACTIVATION", {
+      studentId: student.studentId,
+      id: student.id,
+      email: emailTrimmed,
+    });
+
+    await sendEmail({
+      to: emailTrimmed,
+      subject: `PAC Voting System - Activate Your Account #${Date.now()}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; text-align: center;">
+          <h2 style="margin: 3px; text-align: center;">Account Activation</h2>
           <p style="margin: 3px; text-align: center;">Your verification code is:</p>
           <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px; margin-top: 4px">
             ${otp}
@@ -51,46 +126,166 @@ export const AuthService = {
           <p style="color: #888; margin-top: 16px; text-align: center;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
         </div>
       `,
+    });
+
+    return { email: emailTrimmed };
+  },
+
+  // verifies otp and activates student account
+  verifyActivationOtp: async (data: VerifyActivationOtpInput) => {
+    const emailTrimmed = data.email.trim().toLowerCase();
+    const storedData = (await verifyOtp(
+      emailTrimmed,
+      data.otp,
+      "ACTIVATION",
+    )) as { studentId?: string; id?: number } | null;
+
+    if (!storedData || storedData.studentId !== data.studentId.trim()) {
+      throw new CustomError(
+        "Invalid or expired verification code",
+        status.BAD_REQUEST,
+      );
+    }
+
+    const student = await prisma.student.update({
+      where: { studentId: data.studentId.trim() },
+      data: {
+        email: emailTrimmed,
+        isActivated: true,
+        isActive: true,
+      },
+      include: {
+        department: true,
+        yearLevel: true,
+      },
+    });
+
+    await clearOtp(emailTrimmed, "ACTIVATION");
+
+    return {
+      id: student.id,
+      studentId: student.studentId,
+      email: student.email!,
+      firstName: student.firstName,
+      middleName: student.middleName,
+      lastName: student.lastName,
+      isActive: student.isActive,
+      isActivated: student.isActivated,
+      imageUrl: student.imageUrl,
+      departmentId: student.departmentId,
+      yearLevelId: student.yearLevelId,
+      department: student.department
+        ? {
+            id: student.department.id,
+            name: student.department.name,
+            acronym: student.department.acronym,
+          }
+        : undefined,
+      yearLevel: student.yearLevel
+        ? {
+            id: student.yearLevel.id,
+            year: student.yearLevel.year,
+          }
+        : undefined,
+    };
+  },
+
+  // handles login otp request for students (passwordless) and admins (email+password)
+  loginOtp: async (data: LoginInput, isAdmin?: "admin" | undefined) => {
+    if (isAdmin) {
+      const existingAdmin = await prisma.admin.findUnique({
+        where: { email: data.email.trim().toLowerCase() },
+      });
+
+      if (!existingAdmin || !data.password) {
+        throw new CustomError("Incorrect email or password", status.NOT_FOUND);
+      }
+
+      const isMatch = await bcrypt.compare(
+        data.password,
+        existingAdmin.password,
+      );
+      if (!isMatch) {
+        throw new CustomError("Incorrect email or password", status.BAD_REQUEST);
+      }
+
+      const otp = generateOtp();
+      await storeOtp(
+        existingAdmin.email,
+        otp,
+        "LOGIN",
+        existingAdmin,
+      );
+
+      await sendEmail({
+        to: existingAdmin.email,
+        subject: `PAC Voting System - Admin Login OTP #${Date.now()}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; text-align: center;">
+            <h2 style="margin: 3px; text-align: center;">Admin Login Verification</h2>
+            <p style="margin: 3px; text-align: center;">Your verification code is:</p>
+            <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px; margin-top: 4px">
+              ${otp}
+            </div>
+            <p style="color: #888; margin-top: 16px; text-align: center;">This code expires in 5 minutes.</p>
+            <p style="color: #888; margin-top: 16px; text-align: center;">If you did not request this code, please ignore this email.</p>
+            <p style="color: #888; margin-top: 16px; text-align: center;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
+          </div>
+        `,
       });
 
       return;
     }
-    throw new CustomError("Incorrect email or password", status.BAD_REQUEST);
-  },
 
-  verifyLoginOtp: async (email: string, otp: string) => {
-    const storedData = await verifyOtp(email, otp, "LOGIN");
+    // student login flow (requires studentId and email)
+    const emailTrimmed = data.email.trim().toLowerCase();
+    const studentIdTrimmed = data.studentId?.trim();
 
-    if (!storedData) {
-      throw new CustomError("Invalid or expired OTP", 400);
+    if (!studentIdTrimmed) {
+      throw new CustomError(
+        "Student ID is required for student login",
+        status.BAD_REQUEST,
+      );
     }
 
-    await clearOtp(email, "LOGIN");
-
-    return storedData;
-  },
-
-  // validates input, generates otp, stores in db, sends email
-  sendSignupOtp: async (data: SignupInput) => {
-    const existingUser = await prisma.student.findUnique({
-      where: { email: data.email },
+    const student = await prisma.student.findFirst({
+      where: {
+        studentId: studentIdTrimmed,
+        email: emailTrimmed,
+      },
     });
 
-    if (existingUser) {
-      throw new CustomError("Email already registered", 409);
+    if (!student) {
+      throw new CustomError(
+        "No matching student account found for this Student ID and Email",
+        status.NOT_FOUND,
+      );
+    }
+
+    if (!student.isActivated) {
+      throw new CustomError(
+        "Your account is not yet activated. Please activate your account first.",
+        status.FORBIDDEN,
+      );
     }
 
     const otp = generateOtp();
-    await storeOtp(data.email, otp, "SIGNUP", data);
+    await storeOtp(student.email!, otp, "LOGIN", {
+      id: student.id,
+      studentId: student.studentId,
+      email: student.email,
+      firstName: student.firstName,
+      lastName: student.lastName,
+    });
 
     await sendEmail({
-      to: data.email,
-      subject: "PAC Voting System - Verify Your Email #" + Date.now(),
+      to: student.email!,
+      subject: `PAC Voting System - Login Verification Code #${Date.now()}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px;">
-          <h2 style="line-height: 2; text-align: center;">Email Verification</h2>
-          <p style="text-align: center;">Your verification code is:</p>
-          <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px;">
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; text-align: center;">
+          <h2 style="margin: 3px; text-align: center;">Student Login Verification</h2>
+          <p style="margin: 3px; text-align: center;">Your verification code is:</p>
+          <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px; margin-top: 4px">
             ${otp}
           </div>
           <p style="color: #888; margin-top: 16px; text-align: center;">This code expires in 5 minutes.</p>
@@ -99,46 +294,28 @@ export const AuthService = {
         </div>
       `,
     });
-
-    return { email: data.email };
   },
 
-  // verifies otp, creates student, clears otp record
-  verifySignupOtp: async (email: string, otp: string) => {
-    const storedData = await verifyOtp(email, otp, "SIGNUP");
+  // verifies login otp and returns full profile
+  verifyLoginOtp: async (email: string, otp: string, isAdmin?: boolean) => {
+    const emailTrimmed = email.trim().toLowerCase();
+    const storedData = await verifyOtp(emailTrimmed, otp, "LOGIN");
 
     if (!storedData) {
-      throw new CustomError("Invalid or expired OTP", 400);
+      throw new CustomError("Invalid or expired OTP", status.BAD_REQUEST);
     }
 
-    const data = storedData as SignupInput;
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    await clearOtp(emailTrimmed, "LOGIN");
 
-    const user = await prisma.student.create({
-      data: {
-        email: data.email,
-        password: hashedPassword,
-        firstName: data.firstName,
-        middleName: data.middleName || null,
-        lastName: data.lastName,
-        isActive: false,
-        departmentId: data.departmentId,
-        yearLevelId: data.yearLevelId,
-      },
-    });
+    const fullProfile = await AuthService.getProfile(
+      emailTrimmed,
+      isAdmin ? "admin" : "student",
+    );
 
-    await clearOtp(email, "SIGNUP");
-
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      departmentId: user.departmentId,
-      yearLevelId: user.yearLevelId,
-    };
+    return fullProfile || storedData;
   },
 
+  // verifies jwt refresh token
   verifyRefreshToken: (refreshToken: string) => {
     try {
       const decodedToken = jwt.verify(
@@ -154,17 +331,21 @@ export const AuthService = {
     }
   },
 
+  // gets authenticated user profile
   getProfile: async (email: string, role: "student" | "admin") => {
+    const emailTrimmed = email.trim().toLowerCase();
     if (role === "student") {
       const user = await prisma.student.findUnique({
-        where: { email },
+        where: { email: emailTrimmed },
         select: {
           id: true,
+          studentId: true,
           email: true,
           firstName: true,
           middleName: true,
           lastName: true,
           isActive: true,
+          isActivated: true,
           imageUrl: true,
           departmentId: true,
           yearLevelId: true,
@@ -186,7 +367,7 @@ export const AuthService = {
       return user;
     }
     const user = await prisma.admin.findUnique({
-      where: { email },
+      where: { email: emailTrimmed },
       select: {
         id: true,
         email: true,
@@ -198,52 +379,48 @@ export const AuthService = {
     return user;
   },
 
+  // sends reset password otp for admins
   sendResetPasswordOtp: async (data: ForgotPasswordInput) => {
-    let existingUser;
-
-    if (data.isAdmin) {
-      existingUser = await prisma.admin.findUnique({
-        where: { email: data.email },
-      });
-    } else {
-      existingUser = await prisma.student.findUnique({
-        where: { email: data.email },
-      });
-    }
+    const emailTrimmed = data.email.trim().toLowerCase();
+    const existingUser = await prisma.admin.findUnique({
+      where: { email: emailTrimmed },
+    });
 
     if (!existingUser) {
-      return { email: data.email };
+      return { email: emailTrimmed };
     }
 
     const otp = generateOtp();
-    await storeOtp(data.email, otp, "RESET_PASSWORD", {
-      email: data.email,
-      isAdmin: !!data.isAdmin,
+    await storeOtp(emailTrimmed, otp, "RESET_PASSWORD", {
+      email: emailTrimmed,
+      isAdmin: true,
     });
 
     await sendEmail({
-      to: data.email,
+      to: emailTrimmed,
       subject: `PAC Voting System - Reset Password Code #${Date.now()}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; border-radius: 8px; text-align: center;">
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 10px 16px; text-align: center;">
           <h2 style="margin: 3px;">Reset Password</h2>
           <p style="margin: 3px;">Your password reset verification code is:</p>
           <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center; padding: 10px; background: #f4f4f4; border-radius: 8px; margin-top: 4px">
             ${otp}
           </div>
           <p style="color: #888; margin-top: 16px;">This code expires in 5 minutes.</p>
-          <p style="color: #888; margin-top: 16px;">If you did not request this code, please ignore this email.</p>
-          <p style="color: #888; margin-top: 16px;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
+          <p style="color: #888; margin-top: 16px; text-align: center;">If you did not request this code, please ignore this email.</p>
+          <p style="color: #888; margin-top: 16px; text-align: center;">Archie | Criszel Mae | Kenneth | Kent PJ</p>
         </div>
       `,
     });
 
-    return { email: data.email };
+    return { email: emailTrimmed };
   },
 
+  // resets admin password
   resetPassword: async (data: ResetPasswordInput) => {
+    const emailTrimmed = data.email.trim().toLowerCase();
     const storedData = (await verifyOtp(
-      data.email,
+      emailTrimmed,
       data.otp,
       "RESET_PASSWORD",
     )) as { email: string; isAdmin: boolean } | null;
@@ -254,18 +431,12 @@ export const AuthService = {
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    if (storedData.isAdmin) {
-      await prisma.admin.update({
-        where: { email: data.email },
-        data: { password: hashedPassword },
-      });
-    } else {
-      await prisma.student.update({
-        where: { email: data.email },
-        data: { password: hashedPassword },
-      });
-    }
+    await prisma.admin.update({
+      where: { email: emailTrimmed },
+      data: { password: hashedPassword },
+    });
 
-    await clearOtp(data.email, "RESET_PASSWORD");
+    await clearOtp(emailTrimmed, "RESET_PASSWORD");
   },
 };
+

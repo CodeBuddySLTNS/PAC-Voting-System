@@ -21,6 +21,16 @@ router.patch(
   multerUpload.single("image"),
   tryCatch(UserController.updateStudent),
 );
+router.post(
+  "/students/import",
+  permissions.admin,
+  tryCatch(UserController.importStudents),
+);
+router.post(
+  "/students/make-all-eligible",
+  permissions.admin,
+  tryCatch(UserController.makeAllStudentsEligible),
+);
 
 router.patch(
   "/profile",

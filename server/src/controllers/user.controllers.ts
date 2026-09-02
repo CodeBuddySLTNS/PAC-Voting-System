@@ -7,6 +7,25 @@ export const UserController = {
     res.status(200).json({ students });
   },
 
+  makeAllStudentsEligible: async (req: Request, res: Response) => {
+    const departmentId = req.query?.departmentId
+      ? parseInt(req.query.departmentId as string)
+      : undefined;
+    const yearLevelId = req.query?.yearLevelId
+      ? parseInt(req.query.yearLevelId as string)
+      : undefined;
+
+    const result = await UserService.makeAllStudentsEligible({
+      departmentId,
+      yearLevelId,
+    });
+
+    res.status(200).json({
+      message: "All students marked as eligible to vote",
+      updatedCount: result.count,
+    });
+  },
+
   toggleStudentStatus: async (req: Request, res: Response) => {
     const studentId = parseInt(req.params.id as string);
     if (isNaN(studentId)) {
@@ -71,5 +90,20 @@ export const UserController = {
     } catch (error: any) {
       res.status(500).json({ message: "Failed to update profile", error: error.message });
     }
+  },
+  importStudents: async (req: Request, res: Response) => {
+    const { students } = req.body;
+    if (!students || !Array.isArray(students)) {
+      res.status(400).json({ message: "Invalid students array in request body" });
+      return;
+    }
+
+    const { StudentImportService } = await import("../services/student-import.services");
+    const summary = await StudentImportService.importStudents(students);
+
+    res.status(200).json({
+      message: "Student masterlist processed successfully",
+      summary,
+    });
   },
 };

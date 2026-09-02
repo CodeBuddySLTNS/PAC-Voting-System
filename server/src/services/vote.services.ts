@@ -64,6 +64,12 @@ export const VoteService = {
     if (!student) {
       throw new CustomError("Student not found", 404);
     }
+    if (!student.isActive) {
+      throw new CustomError(
+        "You are not eligible to vote. You may have already cast your ballot or your account is inactive.",
+        403,
+      );
+    }
 
     // Check if student has already voted
     const hasVoted = await prisma.vote.findFirst({
@@ -187,6 +193,9 @@ export const VoteService = {
     if (!student) {
       throw new CustomError("Student not found", 404);
     }
+    if (!student.isActive) {
+      throw new CustomError("You are not eligible to vote in this election", 403);
+    }
 
     // Map votes by position to validate maxVotes constraint
     const votesByPosition = new Map<number, number>();
@@ -219,8 +228,23 @@ export const VoteService = {
       voterYearLevelId: student.yearLevelId,
     }));
 
-    await prisma.vote.createMany({
-      data: voteData,
+    // create votes and automatically set student account ineligible in an atomic interactive transaction
+    await prisma.$transaction(async (tx) => {
+      const alreadyVoted = await tx.vote.findFirst({
+        where: { studentId, electionId },
+      });
+      if (alreadyVoted) {
+        throw new CustomError("You have already voted in this election", 403);
+      }
+
+      await tx.vote.createMany({
+        data: voteData,
+      });
+
+      await tx.student.update({
+        where: { id: studentId },
+        data: { isActive: false },
+      });
     });
 
     return { success: true };

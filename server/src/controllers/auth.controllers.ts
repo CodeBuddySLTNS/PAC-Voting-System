@@ -6,7 +6,7 @@ import status from "http-status";
 
 export const AuthController = {
   loginOtp: async (req: Request, res: Response) => {
-    const isAdmin = req.query?.isAdmin;
+    const isAdmin = req.query?.isAdmin === "true";
 
     await AuthService.loginOtp(req.body, isAdmin ? "admin" : undefined);
 
@@ -17,11 +17,12 @@ export const AuthController = {
 
   loginVerifyOtp: async (req: Request, res: Response) => {
     const { email, otp } = req.body;
-    const isAdmin = req.query?.isAdmin;
+    const isAdmin = req.query?.isAdmin === "true";
 
-    const { password, ...user } = (await AuthService.verifyLoginOtp(
+    const user = (await AuthService.verifyLoginOtp(
       email,
       otp,
+      isAdmin,
     )) as User;
 
     isAdmin ? (user.adminId = user.id) : (user.studentId = user.id);
@@ -36,20 +37,26 @@ export const AuthController = {
     });
   },
 
-  sendOtp: async (req: Request, res: Response) => {
-    const result = await AuthService.sendSignupOtp(req.body);
+  verifyIdentity: async (req: Request, res: Response) => {
+    const result = await AuthService.verifyStudentIdentity(req.body);
     res.status(200).json({
       success: true,
-      message: "Verification code sent to your email",
       data: result,
     });
   },
 
-  verifyOtp: async (req: Request, res: Response) => {
-    const { email, otp } = req.body;
-    const user = (await AuthService.verifySignupOtp(
-      email,
-      otp,
+  sendActivationOtp: async (req: Request, res: Response) => {
+    const result = await AuthService.sendActivationOtp(req.body);
+    res.status(200).json({
+      success: true,
+      message: "Activation code sent to your email",
+      data: result,
+    });
+  },
+
+  verifyActivationOtp: async (req: Request, res: Response) => {
+    const user = (await AuthService.verifyActivationOtp(
+      req.body,
     )) as unknown as User;
 
     user.studentId = user.id;
@@ -58,16 +65,15 @@ export const AuthController = {
 
     res.cookie("jwt_rf", refreshToken);
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: "Email verified and account created successfully",
+      message: "Account activated successfully",
       token: accessToken,
       user,
     });
   },
 
   refreshToken: async (req: Request, res: Response) => {
-    const isAdmin = req.query?.isAdmin;
     const refreshToken = req.cookies.jwt_rf;
     if (!refreshToken)
       throw new CustomError("No refresh token", status.UNAUTHORIZED);
@@ -119,3 +125,4 @@ export const AuthController = {
     });
   },
 };
+

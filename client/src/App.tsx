@@ -12,7 +12,7 @@ import { coleAPI } from "./lib/utils";
 import { useEffect } from "react";
 
 import LoginPage from "@/pages/auth/login";
-import SignupPage from "@/pages/auth/signup";
+import ActivatePage from "@/pages/auth/activate";
 import ForgotPasswordPage from "@/pages/auth/forgot-password";
 import ProtectedRoute from "./components/protected-route/protected-route";
 import DashboardLayout from "./components/layouts/dashboard-layout";
@@ -69,7 +69,8 @@ export function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/activate" element={<ActivatePage />} />
+          <Route path="/signup" element={<Navigate to="/activate" replace />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           <Route element={<ProtectedRoute />}>

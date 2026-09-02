@@ -2,7 +2,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "../prisma";
 
-type OtpType = "SIGNUP" | "LOGIN" | "RESET_PASSWORD";
+type OtpType = "SIGNUP" | "ACTIVATION" | "LOGIN" | "RESET_PASSWORD";
 
 const OTP_EXPIRY_MINUTES = 5;
 

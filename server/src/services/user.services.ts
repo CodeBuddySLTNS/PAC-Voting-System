@@ -13,6 +13,27 @@ export const UserService = {
     });
   },
 
+  // bulk sets active status to true for students
+  makeAllStudentsEligible: async (filter?: {
+    departmentId?: number | undefined;
+    yearLevelId?: number | undefined;
+  }) => {
+    const where: any = {};
+    if (filter?.departmentId && !isNaN(filter.departmentId)) {
+      where.departmentId = filter.departmentId;
+    }
+    if (filter?.yearLevelId && !isNaN(filter.yearLevelId)) {
+      where.yearLevelId = filter.yearLevelId;
+    }
+
+    return prisma.student.updateMany({
+      where,
+      data: {
+        isActive: true,
+      },
+    });
+  },
+
   toggleStudentStatus: async (studentId: number) => {
     // get current status first
     const student = await prisma.student.findUnique({
@@ -38,6 +59,7 @@ export const UserService = {
   updateStudent: async (
     id: number,
     data: {
+      studentId?: string;
       firstName?: string;
       middleName?: string;
       lastName?: string;
@@ -53,12 +75,22 @@ export const UserService = {
       throw new Error("Student not found");
     }
 
-    // check email uniqueness if changing
-    if (data.email && data.email !== student.email) {
-      const existing = await prisma.student.findUnique({
-        where: { email: data.email },
+    // check studentId uniqueness if changing
+    if (data.studentId && data.studentId.trim() !== student.studentId) {
+      const existingId = await prisma.student.findUnique({
+        where: { studentId: data.studentId.trim() },
       });
-      if (existing) {
+      if (existingId) {
+        throw new Error("Student ID already in use");
+      }
+    }
+
+    // check email uniqueness if changing
+    if (data.email && data.email.trim().toLowerCase() !== student.email) {
+      const existingEmail = await prisma.student.findUnique({
+        where: { email: data.email.trim().toLowerCase() },
+      });
+      if (existingEmail) {
         throw new Error("Email already in use");
       }
     }
@@ -66,10 +98,15 @@ export const UserService = {
     return prisma.student.update({
       where: { id },
       data: {
-        ...(data.firstName && { firstName: data.firstName }),
-        ...(data.middleName !== undefined && { middleName: data.middleName || null }),
-        ...(data.lastName && { lastName: data.lastName }),
-        ...(data.email && { email: data.email }),
+        ...(data.studentId && { studentId: data.studentId.trim() }),
+        ...(data.firstName && { firstName: data.firstName.trim() }),
+        ...(data.middleName !== undefined && {
+          middleName: data.middleName ? data.middleName.trim() : null,
+        }),
+        ...(data.lastName && { lastName: data.lastName.trim() }),
+        ...(data.email !== undefined && {
+          email: data.email ? data.email.trim().toLowerCase() : null,
+        }),
         ...(data.departmentId && { departmentId: Number(data.departmentId) }),
         ...(data.yearLevelId && { yearLevelId: Number(data.yearLevelId) }),
         ...(imageFilename && { imageUrl: imageFilename }),

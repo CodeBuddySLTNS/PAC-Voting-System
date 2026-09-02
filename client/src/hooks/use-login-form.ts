@@ -13,12 +13,12 @@ export type LoginRole = "student" | "officer";
 export type LoginStep = "credentials" | "otp";
 
 const studentSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email"),
-  password: z.string().min(1, "Password is required"),
+  studentId: z.string().min(1, "Student ID is required"),
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
 });
 
 const officerSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email"),
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -31,7 +31,7 @@ export type OfficerLoginFormValues = z.infer<typeof officerSchema>;
 export type OtpFormValues = z.infer<typeof otpSchema>;
 
 type LoginData = {
-  data: { email: string; password: string };
+  data: { email: string; studentId?: string; password?: string };
   isAdmin: boolean;
 };
 
@@ -47,8 +47,8 @@ export function useLoginForm() {
   const studentForm = useForm<StudentLoginFormValues>({
     resolver: zodResolver(studentSchema),
     defaultValues: {
+      studentId: "",
       email: "",
-      password: "",
     },
   });
 
@@ -88,16 +88,20 @@ export function useLoginForm() {
     },
   });
 
+  const queryClient = useQueryClient();
+
   const verifyOtpMutation = useMutation({
     mutationFn: coleAPI(
       role === "officer"
         ? "/api/auth/login/verify?isAdmin=true"
         : "/api/auth/login/verify",
-      "POST"
+      "POST",
     ),
     onSuccess: (res) => {
       setToken(res.token);
       setUser(res.user);
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.invalidateQueries({ queryKey: ["student-elections"] });
       toast.success("Login successful");
       navigate("/", { replace: true });
     },
@@ -115,8 +119,8 @@ export function useLoginForm() {
   });
 
   const handleCredentialsSubmit = (
-    data: { email: string; password: string },
-    isAdmin: boolean
+    data: { email: string; password?: string; studentId?: string },
+    isAdmin: boolean,
   ) => {
     loginMutation.mutate({ data, isAdmin });
   };

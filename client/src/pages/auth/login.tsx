@@ -77,11 +77,25 @@ export default function LoginPage() {
                   onSubmit={studentForm.handleSubmit(onSubmitStudent)}
                   className="space-y-4 data-[state=inactive]:hidden"
                 >
-                  <FieldGroup>
+                  <FieldGroup className="space-y-3">
                     <Field>
-                      <FieldLabel htmlFor="email">Email</FieldLabel>
+                      <FieldLabel htmlFor="studentId">Student ID Number</FieldLabel>
+                      <Input
+                        id="studentId"
+                        placeholder="e.g. 2023-00123"
+                        {...studentForm.register("studentId")}
+                        data-invalid={!!studentForm.formState.errors.studentId}
+                      />
+                      <FieldError
+                        errors={[studentForm.formState.errors.studentId]}
+                      />
+                    </Field>
+
+                    <Field>
+                      <FieldLabel htmlFor="email">Registered Email</FieldLabel>
                       <Input
                         id="email"
+                        type="email"
                         placeholder="juantamad@gmail.com"
                         {...studentForm.register("email")}
                         data-invalid={!!studentForm.formState.errors.email}
@@ -90,64 +104,26 @@ export default function LoginPage() {
                         errors={[studentForm.formState.errors.email]}
                       />
                     </Field>
-
-                    <Field>
-                      <div className="flex items-center justify-between">
-                        <FieldLabel htmlFor="student-password">
-                          Password
-                        </FieldLabel>
-                        <Link
-                          to="/forgot-password"
-                          className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-                        >
-                          Forgot password?
-                        </Link>
-                      </div>
-                      <div className="relative">
-                        <Input
-                          id="student-password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          {...studentForm.register("password")}
-                          data-invalid={!!studentForm.formState.errors.password}
-                        />
-                        <button
-                          type="button"
-                          className="absolute top-0 right-0 flex h-full items-center justify-center rounded-r-md px-3 text-muted-foreground hover:text-foreground"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                          <span className="sr-only">
-                            {showPassword ? "Hide password" : "Show password"}
-                          </span>
-                        </button>
-                      </div>
-                      <FieldError
-                        errors={[studentForm.formState.errors.password]}
-                      />
-                    </Field>
                   </FieldGroup>
 
                   <Button
                     type="submit"
-                    className="w-full cursor-pointer hover:bg-primary/90"
+                    className="w-full cursor-pointer hover:bg-primary/90 mt-2"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Signing in..." : "Sign in"}
+                    {isLoading ? "Sending OTP..." : "Continue with OTP"}
                   </Button>
 
-                  <div className="mt-2 text-center text-sm">
-                    Don&apos;t have an account?{" "}
-                    <Link
-                      to="/signup"
-                      className="font-medium text-primary underline-offset-4 hover:underline"
-                    >
-                      Sign up
-                    </Link>
+                  <div className="mt-3 text-center text-sm border-t pt-3">
+                    <p className="text-muted-foreground">
+                      First time voting?{" "}
+                      <Link
+                        to="/activate"
+                        className="font-medium text-primary underline-offset-4 hover:underline"
+                      >
+                        Activate your account
+                      </Link>
+                    </p>
                   </div>
                 </form>
               </TabsContent>

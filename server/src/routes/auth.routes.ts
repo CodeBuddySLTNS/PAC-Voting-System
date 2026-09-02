@@ -3,8 +3,10 @@ import { AuthController } from "../controllers/auth.controllers";
 import { validate } from "../middlewares/validate";
 import {
   loginSchema,
-  signupSchema,
   verifyOtpSchema,
+  verifyIdentitySchema,
+  sendActivationOtpSchema,
+  verifyActivationOtpSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
 } from "../models/auth.models";
@@ -20,15 +22,21 @@ router.post(
   tryCatch(AuthController.loginVerifyOtp),
 );
 
+// activation routes for students
 router.post(
-  "/signup/send-otp",
-  validate(signupSchema),
-  tryCatch(AuthController.sendOtp),
+  "/activate/verify-identity",
+  validate(verifyIdentitySchema),
+  tryCatch(AuthController.verifyIdentity),
 );
 router.post(
-  "/signup/verify",
-  validate(verifyOtpSchema),
-  tryCatch(AuthController.verifyOtp),
+  "/activate/send-otp",
+  validate(sendActivationOtpSchema),
+  tryCatch(AuthController.sendActivationOtp),
+);
+router.post(
+  "/activate/verify",
+  validate(verifyActivationOtpSchema),
+  tryCatch(AuthController.verifyActivationOtp),
 );
 
 router.get("/refresh-token", tryCatch(AuthController.refreshToken));
@@ -47,3 +55,4 @@ router.post(
 );
 
 export default router;
+

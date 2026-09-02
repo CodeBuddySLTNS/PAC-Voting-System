@@ -7,10 +7,12 @@ import { isAxiosError } from "axios";
 
 export interface Student {
   id: number;
+  studentId: string;
   firstName: string;
   middleName: string | null;
   lastName: string;
-  email: string;
+  email: string | null;
+  isActivated: boolean;
   isActive: boolean;
   imageUrl: string | null;
   departmentId: number;
@@ -26,6 +28,24 @@ export interface Student {
   };
 }
 
+export interface RawStudentRow {
+  studentId: string;
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  department: string;
+  yearLevel: string;
+  email?: string | null;
+}
+
+export interface ImportSummary {
+  totalProcessed: number;
+  inserted: number;
+  updated: number;
+  unchanged: number;
+  errors: Array<{ row: number; studentId?: string; reason: string }>;
+}
+
 export function useStudents() {
   return useQuery({
     queryKey: ["students"],
@@ -33,6 +53,74 @@ export function useStudents() {
       const fn = coleAPI("/api/users/students");
       const res = await fn({});
       return res.students as Student[];
+    },
+  });
+}
+
+export function useImportStudents() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (students: RawStudentRow[]) => {
+      const fn = coleAPI("/api/users/students/import", "POST");
+      return fn({ students }) as Promise<{
+        message: string;
+        summary: ImportSummary;
+      }>;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-counts"] });
+      toast.success(
+        `Import complete: ${data.summary.inserted} added, ${data.summary.updated} updated (promoted/shifted), ${data.summary.unchanged} unchanged`,
+      );
+    },
+    onError: (error) => {
+      if (isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message || "Failed to import student masterlist",
+        );
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    },
+  });
+}
+
+export function useMakeAllStudentsEligible() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params?: { departmentId?: string; yearLevelId?: string }) => {
+      let url = "/api/users/students/make-all-eligible";
+      const q = new URLSearchParams();
+      if (params?.departmentId && params.departmentId !== "all") {
+        q.append("departmentId", params.departmentId);
+      }
+      if (params?.yearLevelId && params.yearLevelId !== "all") {
+        q.append("yearLevelId", params.yearLevelId);
+      }
+      if (q.toString()) {
+        url += `?${q.toString()}`;
+      }
+      const fn = coleAPI(url, "POST");
+      return fn({}) as Promise<{ message: string; updatedCount: number }>;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-counts"] });
+      toast.success(
+        `All ${data.updatedCount ?? ""} students are now eligible to vote!`,
+      );
+    },
+    onError: (error) => {
+      if (isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message || "Failed to update voter eligibility",
+        );
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     },
   });
 }

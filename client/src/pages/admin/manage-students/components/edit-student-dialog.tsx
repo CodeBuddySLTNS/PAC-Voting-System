@@ -122,6 +122,16 @@ export default function EditStudentDialog({
             />
           </div>
 
+          <div>
+            <FieldLabel>Student ID Number</FieldLabel>
+            <Input
+              name="studentId"
+              defaultValue={student.studentId}
+              placeholder="e.g. 2023-00123"
+              required
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <FieldLabel>First Name</FieldLabel>
@@ -149,12 +159,12 @@ export default function EditStudentDialog({
           </div>
 
           <div>
-            <FieldLabel>Email</FieldLabel>
+            <FieldLabel>Email (Optional)</FieldLabel>
             <Input
               name="email"
               type="email"
-              defaultValue={student.email}
-              required
+              placeholder="student@pac.edu.ph"
+              defaultValue={student.email || ""}
             />
           </div>
 
