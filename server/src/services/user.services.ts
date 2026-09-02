@@ -118,19 +118,16 @@ export const UserService = {
     });
   },
 
-  updateMyProfile: async (
-    studentId: number,
-    data: { yearLevelId?: string | number },
-    imageFilename?: string,
-  ) => {
+  // students can only update their profile photo, not academic year level or department
+  updateMyProfile: async (studentId: number, imageFilename?: string) => {
     return prisma.student.update({
       where: { id: studentId },
       data: {
-        ...(data.yearLevelId && { yearLevelId: Number(data.yearLevelId) }),
         ...(imageFilename && { imageUrl: imageFilename }),
       },
       select: {
         id: true,
+        studentId: true,
         email: true,
         firstName: true,
         middleName: true,

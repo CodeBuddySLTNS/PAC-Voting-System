@@ -85,7 +85,7 @@ export const UserController = {
     const imageFilename = req.file?.filename;
     
     try {
-      const student = await UserService.updateMyProfile(studentId, req.body, imageFilename);
+      const student = await UserService.updateMyProfile(studentId, imageFilename);
       res.status(200).json({ message: "Profile updated successfully", student });
     } catch (error: any) {
       res.status(500).json({ message: "Failed to update profile", error: error.message });

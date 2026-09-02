@@ -7,7 +7,7 @@ import { useMainStore } from "@/store";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export type ActivationStep = "verify-identity" | "email" | "otp";
 

@@ -6,16 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FieldLabel } from "@/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useUpdateMyProfile } from "@/hooks/use-students";
-import { useYearLevels } from "@/hooks/use-config";
 import { useMainStore } from "@/store";
 import { handlePhotoUrl } from "@/lib/utils";
 import { Upload, X } from "lucide-react";
@@ -32,22 +23,17 @@ export default function EditProfileDialog({
   const user = useMainStore((state) => state.user);
   const initialPreview = user?.imageUrl ? handlePhotoUrl(user.imageUrl) : null;
   const [imagePreview, setImagePreview] = useState<string | null>(
-    initialPreview
-  );
-  const [yearLevelId, setYearLevelId] = useState(
-    String(user?.yearLevelId || "")
+    initialPreview,
   );
   const [prevOpen, setPrevOpen] = useState(open);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateMutation = useUpdateMyProfile();
-  const { data: yearLevels, isLoading: yearLevelsLoading } = useYearLevels();
 
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open && user) {
       setImagePreview(user.imageUrl ? handlePhotoUrl(user.imageUrl) : null);
-      setYearLevelId(String(user.yearLevelId || ""));
     }
   }
 
@@ -61,7 +47,6 @@ export default function EditProfileDialog({
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    if (yearLevelId) formData.set("yearLevelId", yearLevelId);
 
     updateMutation.mutate(formData, {
       onSuccess: () => {
@@ -88,7 +73,7 @@ export default function EditProfileDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogTitle>Update Profile Photo</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col items-center gap-3">
@@ -103,7 +88,7 @@ export default function EditProfileDialog({
                   <button
                     type="button"
                     onClick={clearImage}
-                    className="absolute top-0 right-0 rounded-full bg-destructive p-1 text-white shadow"
+                    className="absolute top-0 right-0 rounded-full bg-destructive p-1 text-white shadow cursor-pointer"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -128,32 +113,26 @@ export default function EditProfileDialog({
             />
           </div>
 
-          <div className="space-y-2">
-            <FieldLabel>Year Level</FieldLabel>
-            <Select
-              value={yearLevelId}
-              onValueChange={setYearLevelId}
-              disabled={yearLevelsLoading}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select year level" />
-              </SelectTrigger>
-              <SelectContent>
-                {yearLevels?.map((yl) => (
-                  <SelectItem key={yl.id} value={String(yl.id)}>
-                    {yl.year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="rounded-lg border bg-muted/30 p-3 text-xs space-y-1 text-muted-foreground">
+            <p>
+              <span className="font-medium text-foreground">Department:</span>{" "}
+              {user?.department?.name || user?.department?.acronym || "N/A"}
+            </p>
+            <p>
+              <span className="font-medium text-foreground">Year Level:</span>{" "}
+              {user?.yearLevel?.year || "N/A"}
+            </p>
+            <p className="text-[11px] text-muted-foreground/70 pt-1 border-t mt-1">
+              Note: Academic program and year level are managed by your Election Officer.
+            </p>
           </div>
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full cursor-pointer"
             disabled={updateMutation.isPending}
           >
-            {updateMutation.isPending ? "Saving..." : "Save Changes"}
+            {updateMutation.isPending ? "Saving..." : "Save Photo"}
           </Button>
         </form>
       </DialogContent>
