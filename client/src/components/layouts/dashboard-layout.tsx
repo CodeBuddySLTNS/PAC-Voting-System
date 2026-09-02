@@ -154,7 +154,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <Button
             variant="ghost"
             onClick={handleLogout}
-            className="w-full justify-start text-primary-foreground/70 transition-colors hover:bg-red-500/10 hover:text-red-400"
+            className="w-full justify-start text-primary-foreground/70 transition-colors"
           >
             <LogOut className="mr-3 h-5 w-5" />
             Logout
